@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Wand2, Loader2, Download, Sparkles, Upload, Video, Image as ImageIcon, X, Play } from 'lucide-react';
+import { Wand2, Loader2, Download, Sparkles, Upload, Video, Image as ImageIcon, X, Play, AlertCircle } from 'lucide-react';
 
 const IMAGE_STYLES = ['vivid', 'natural'];
 const IMAGE_SIZES = ['1024x1024', '1792x1024', '1024x1792'];
@@ -42,7 +42,8 @@ export default function AIMediaGeneratorServerless() {
     setError(null);
 
     try {
-      const response = await fetch('/api/generate-image', {
+      // Try OpenAI first
+      let response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,9 +55,28 @@ export default function AIMediaGeneratorServerless() {
         })
       });
 
+      // If OpenAI fails due to missing key, try Bhindi fallback
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate image');
+        if (errorData.error?.includes('not configured')) {
+          console.log('OpenAI not configured, using Bhindi fallback...');
+          response = await fetch('/api/generate-image-bhindi', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              prompt: prompt,
+              size: imageSize,
+              style: imageStyle
+            })
+          });
+        }
+        
+        if (!response.ok) {
+          const fallbackError = await response.json();
+          throw new Error(fallbackError.error || 'Failed to generate image');
+        }
       }
 
       const data = await response.json();
@@ -246,6 +266,7 @@ export default function AIMediaGeneratorServerless() {
                 onClick={() => {
                   setMode('image');
                   setUploadedImage(null);
+                  setError(null);
                 }}
                 className={`p-4 rounded-lg font-medium transition-all ${
                   mode === 'image'
@@ -260,6 +281,7 @@ export default function AIMediaGeneratorServerless() {
                 onClick={() => {
                   setMode('text-to-video');
                   setUploadedImage(null);
+                  setError(null);
                 }}
                 className={`p-4 rounded-lg font-medium transition-all ${
                   mode === 'text-to-video'
@@ -271,7 +293,10 @@ export default function AIMediaGeneratorServerless() {
                 Text to Video
               </button>
               <button
-                onClick={() => setMode('image-to-video')}
+                onClick={() => {
+                  setMode('image-to-video');
+                  setError(null);
+                }}
                 className={`p-4 rounded-lg font-medium transition-all ${
                   mode === 'image-to-video'
                     ? 'bg-purple-600 text-white shadow-lg scale-105'
@@ -395,7 +420,12 @@ export default function AIMediaGeneratorServerless() {
                 ))}
               </div>
               {videoModel === 'stability' && mode === 'text-to-video' && (
-                <p className="text-yellow-300 text-sm mt-2">⚠️ Stability AI only supports image-to-video. Please switch mode or choose a different model.</p>
+                <div className="mt-3 bg-yellow-500/20 border border-yellow-400/30 rounded-lg p-3 flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-yellow-300 flex-shrink-0 mt-0.5" />
+                  <p className="text-yellow-200 text-sm">
+                    Stability AI only supports image-to-video. Please switch mode or choose a different model.
+                  </p>
+                </div>
               )}
             </div>
           )}
@@ -427,8 +457,12 @@ export default function AIMediaGeneratorServerless() {
 
           {/* Error Message */}
           {error && (
-            <div className="mt-4 bg-red-500/20 border border-red-500 rounded-lg p-3 text-red-200 text-sm">
-              {error}
+            <div className="mt-4 bg-red-500/20 border border-red-500 rounded-lg p-3 flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 text-red-300 flex-shrink-0 mt-0.5" />
+              <div className="text-red-200 text-sm">
+                <p className="font-semibold mb-1">Error:</p>
+                <p>{error}</p>
+              </div>
             </div>
           )}
         </div>
@@ -450,8 +484,8 @@ export default function AIMediaGeneratorServerless() {
                   )}
                   <div className="p-4">
                     <p className="text-gray-800 font-medium mb-2 line-clamp-2">{media.prompt}</p>
-                    {media.revisedPrompt && (
-                      <p className="text-gray-600 text-xs mb-2">DALL-E: {media.revisedPrompt.substring(0, 100)}...</p>
+                    {media.revisedPrompt && media.revisedPrompt !== media.prompt && (
+                      <p className="text-gray-600 text-xs mb-2">Enhanced: {media.revisedPrompt.substring(0, 100)}...</p>
                     )}
                     <div className="flex items-center justify-between text-xs text-gray-600 mb-3">
                       <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">
