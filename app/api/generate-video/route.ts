@@ -4,20 +4,63 @@ export async function POST(request: NextRequest) {
   try {
     const { prompt, model, imageData } = await request.json();
 
-    if (!prompt) {
+    if (!prompt && !imageData) {
       return NextResponse.json(
-        { error: 'Prompt is required' },
+        { error: 'Prompt or image is required' },
         { status: 400 }
       );
+    }
+
+    // Check if API keys are configured
+    const hasRunwayKey = !!process.env.RUNWAY_API_KEY;
+    const hasStabilityKey = !!process.env.STABILITY_API_KEY;
+    const hasLumaKey = !!process.env.LUMA_API_KEY;
+
+    // If no keys configured, use Bhindi fallback
+    if (!hasRunwayKey && !hasStabilityKey && !hasLumaKey) {
+      console.log('No video API keys configured, using Bhindi fallback...');
+      const fallbackResponse = await fetch(`${request.nextUrl.origin}/api/generate-video-bhindi`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, model, imageData })
+      });
+      return fallbackResponse;
     }
 
     // Route to appropriate video generation service
     switch (model) {
       case 'runway':
+        if (!hasRunwayKey) {
+          console.log('Runway key not configured, using Bhindi fallback...');
+          const fallbackResponse = await fetch(`${request.nextUrl.origin}/api/generate-video-bhindi`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, model, imageData })
+          });
+          return fallbackResponse;
+        }
         return await generateRunwayVideo(prompt, imageData);
       case 'stability':
+        if (!hasStabilityKey) {
+          console.log('Stability key not configured, using Bhindi fallback...');
+          const fallbackResponse = await fetch(`${request.nextUrl.origin}/api/generate-video-bhindi`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, model, imageData })
+          });
+          return fallbackResponse;
+        }
         return await generateStabilityVideo(prompt, imageData);
       case 'luma':
+        if (!hasLumaKey) {
+          console.log('Luma key not configured, using Bhindi fallback...');
+          const fallbackResponse = await fetch(`${request.nextUrl.origin}/api/generate-video-bhindi`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, model, imageData })
+          });
+          return fallbackResponse;
+        }
         return await generateLumaVideo(prompt, imageData);
       default:
         return NextResponse.json(
