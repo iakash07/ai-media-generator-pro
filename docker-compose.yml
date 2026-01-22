@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # Add your API keys here or use .env file
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - RUNWAY_API_KEY=${RUNWAY_API_KEY}
+      - STABILITY_API_KEY=${STABILITY_API_KEY}
+      - LUMA_API_KEY=${LUMA_API_KEY}
+    restart: unless-stopped
+    networks:
+      - ai-media-network
+
+networks:
+  ai-media-network:
+    driver: bridge
