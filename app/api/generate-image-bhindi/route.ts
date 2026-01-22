@@ -11,24 +11,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Map size to aspect ratio for Gemini Nano Banana Pro
+    let aspectRatio = '1:1';
+    if (size === '1792x1024') aspectRatio = '16:9';
+    else if (size === '1024x1792') aspectRatio = '9:16';
+
     // Use Bhindi's Gemini Nano Banana Pro for image generation
-    // This is a fallback when OpenAI key is not configured
-    const response = await fetch('https://api.bhindi.io/v1/agents/gemini-nano-banana-pro/generate', {
+    // This uses the actual Bhindi API endpoint
+    const bhindiApiUrl = process.env.BHINDI_API_URL || 'https://api.bhindi.io';
+    const bhindiApiKey = process.env.BHINDI_API_KEY || '';
+
+    const response = await fetch(`${bhindiApiUrl}/v1/image/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(bhindiApiKey && { 'Authorization': `Bearer ${bhindiApiKey}` })
       },
       body: JSON.stringify({
         prompt: prompt,
-        aspectRatio: size === '1792x1024' ? '16:9' : size === '1024x1792' ? '9:16' : '1:1',
-        style: style || 'vivid'
+        aspectRatio: aspectRatio,
+        model: 'gemini-nano-banana-pro'
       })
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      console.error('Bhindi API error:', errorData);
       return NextResponse.json(
-        { error: errorData.error?.message || 'Failed to generate image' },
+        { error: errorData.error?.message || errorData.message || 'Failed to generate image with Bhindi' },
         { status: response.status }
       );
     }
@@ -38,9 +48,11 @@ export async function POST(request: NextRequest) {
     // Format response to match OpenAI structure
     return NextResponse.json({
       data: [{
-        url: data.imageUrl || data.url,
+        url: data.imageUrl || data.url || data.data?.url,
         revised_prompt: prompt
-      }]
+      }],
+      provider: 'bhindi',
+      model: 'gemini-nano-banana-pro'
     });
 
   } catch (error: any) {
