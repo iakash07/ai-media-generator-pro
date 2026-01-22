@@ -1,7 +1,7 @@
 'use client';
 
-import AIMediaGenerator from '@/components/AIMediaGenerator';
+import AIMediaGeneratorServerless from '@/components/AIMediaGeneratorServerless';
 
 export default function Home() {
-  return <AIMediaGenerator />;
+  return <AIMediaGeneratorServerless />;
 }
