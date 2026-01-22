@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Route to appropriate status checker
     switch (provider) {
       case 'runway':
         return await checkRunwayStatus(taskId);
@@ -18,6 +19,8 @@ export async function POST(request: NextRequest) {
         return await checkStabilityStatus(taskId);
       case 'luma':
         return await checkLumaStatus(taskId);
+      case 'bhindi':
+        return await checkBhindiStatus(taskId);
       default:
         return NextResponse.json(
           { error: 'Invalid provider' },
@@ -148,4 +151,22 @@ async function checkLumaStatus(taskId: string) {
     status: status,
     videoUrl: data.state === 'completed' ? (data.assets?.video || data.video?.url) : null
   });
+}
+
+async function checkBhindiStatus(taskId: string) {
+  // Check Bhindi video generation status
+  const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/check-video-status-bhindi`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ taskId })
+  });
+
+  if (!response.ok) {
+    return NextResponse.json(
+      { error: 'Failed to check Bhindi status' },
+      { status: response.status }
+    );
+  }
+
+  return response;
 }
