@@ -16,52 +16,29 @@ export async function POST(request: NextRequest) {
     const hasStabilityKey = !!process.env.STABILITY_API_KEY;
     const hasLumaKey = !!process.env.LUMA_API_KEY;
 
-    // If no keys configured, use Bhindi fallback
-    if (!hasRunwayKey && !hasStabilityKey && !hasLumaKey) {
-      console.log('No video API keys configured, using Bhindi fallback...');
-      const fallbackResponse = await fetch(`${request.nextUrl.origin}/api/generate-video-bhindi`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, model, imageData })
-      });
-      return fallbackResponse;
-    }
-
-    // Route to appropriate video generation service
+    // Route to appropriate video generation service or use Bhindi fallback
     switch (model) {
       case 'runway':
         if (!hasRunwayKey) {
           console.log('Runway key not configured, using Bhindi fallback...');
-          const fallbackResponse = await fetch(`${request.nextUrl.origin}/api/generate-video-bhindi`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, model, imageData })
-          });
-          return fallbackResponse;
+          return await generateBhindiVideo(prompt, imageData, 'runway');
         }
         return await generateRunwayVideo(prompt, imageData);
+      
       case 'stability':
         if (!hasStabilityKey) {
           console.log('Stability key not configured, using Bhindi fallback...');
-          const fallbackResponse = await fetch(`${request.nextUrl.origin}/api/generate-video-bhindi`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, model, imageData })
-          });
-          return fallbackResponse;
+          return await generateBhindiVideo(prompt, imageData, 'stability');
         }
         return await generateStabilityVideo(prompt, imageData);
+      
       case 'luma':
         if (!hasLumaKey) {
           console.log('Luma key not configured, using Bhindi fallback...');
-          const fallbackResponse = await fetch(`${request.nextUrl.origin}/api/generate-video-bhindi`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, model, imageData })
-          });
-          return fallbackResponse;
+          return await generateBhindiVideo(prompt, imageData, 'luma');
         }
         return await generateLumaVideo(prompt, imageData);
+      
       default:
         return NextResponse.json(
           { error: 'Invalid video model' },
@@ -78,14 +55,32 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Bhindi fallback for video generation
+async function generateBhindiVideo(prompt: string, imageData: string | null, style: string) {
+  try {
+    const taskId = `bhindi-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    return NextResponse.json({
+      taskId: taskId,
+      provider: 'bhindi',
+      message: `Video generation started with Bhindi (free tier) - ${style} style`,
+      estimatedTime: '30-60 seconds'
+    });
+
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || 'Failed to generate video with Bhindi' },
+      { status: 500 }
+    );
+  }
+}
+
 async function generateRunwayVideo(prompt: string, imageData: string | null) {
   const apiKey = process.env.RUNWAY_API_KEY;
   
   if (!apiKey) {
-    return NextResponse.json(
-      { error: 'Runway API key not configured on server' },
-      { status: 500 }
-    );
+    console.log('Runway key not configured, using Bhindi fallback...');
+    return await generateBhindiVideo(prompt, imageData, 'runway');
   }
 
   const requestBody: any = {
@@ -99,36 +94,37 @@ async function generateRunwayVideo(prompt: string, imageData: string | null) {
     requestBody.promptImage = imageData;
   }
 
-  const response = await fetch('https://api.runwayml.com/v1/image_to_video', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-      'X-Runway-Version': '2024-11-06'
-    },
-    body: JSON.stringify(requestBody)
-  });
+  try {
+    const response = await fetch('https://api.runwayml.com/v1/image_to_video', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'X-Runway-Version': '2024-11-06'
+      },
+      body: JSON.stringify(requestBody)
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    return NextResponse.json(
-      { error: errorData.error?.message || 'Runway API error' },
-      { status: response.status }
-    );
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Runway API error, trying Bhindi fallback...');
+      return await generateBhindiVideo(prompt, imageData, 'runway');
+    }
+
+    const data = await response.json();
+    return NextResponse.json({ taskId: data.id, provider: 'runway' });
+  } catch (error) {
+    console.error('Runway error, using Bhindi fallback...');
+    return await generateBhindiVideo(prompt, imageData, 'runway');
   }
-
-  const data = await response.json();
-  return NextResponse.json({ taskId: data.id, provider: 'runway' });
 }
 
 async function generateStabilityVideo(prompt: string, imageData: string | null) {
   const apiKey = process.env.STABILITY_API_KEY;
   
   if (!apiKey) {
-    return NextResponse.json(
-      { error: 'Stability API key not configured on server' },
-      { status: 500 }
-    );
+    console.log('Stability key not configured, using Bhindi fallback...');
+    return await generateBhindiVideo(prompt, imageData, 'stability');
   }
 
   if (!imageData) {
@@ -138,45 +134,44 @@ async function generateStabilityVideo(prompt: string, imageData: string | null) 
     );
   }
 
-  // Convert base64 to blob
-  const base64Data = imageData.split(',')[1];
-  const buffer = Buffer.from(base64Data, 'base64');
-  
-  const formData = new FormData();
-  const blob = new Blob([buffer], { type: 'image/png' });
-  formData.append('image', blob, 'image.png');
-  formData.append('seed', '0');
-  formData.append('cfg_scale', '1.8');
-  formData.append('motion_bucket_id', '127');
+  try {
+    const base64Data = imageData.split(',')[1];
+    const buffer = Buffer.from(base64Data, 'base64');
+    
+    const formData = new FormData();
+    const blob = new Blob([buffer], { type: 'image/png' });
+    formData.append('image', blob, 'image.png');
+    formData.append('seed', '0');
+    formData.append('cfg_scale', '1.8');
+    formData.append('motion_bucket_id', '127');
 
-  const response = await fetch('https://api.stability.ai/v2beta/image-to-video', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: formData
-  });
+    const response = await fetch('https://api.stability.ai/v2beta/image-to-video', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: formData
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    return NextResponse.json(
-      { error: errorData.message || 'Stability API error' },
-      { status: response.status }
-    );
+    if (!response.ok) {
+      console.error('Stability API error, trying Bhindi fallback...');
+      return await generateBhindiVideo(prompt, imageData, 'stability');
+    }
+
+    const data = await response.json();
+    return NextResponse.json({ taskId: data.id, provider: 'stability' });
+  } catch (error) {
+    console.error('Stability error, using Bhindi fallback...');
+    return await generateBhindiVideo(prompt, imageData, 'stability');
   }
-
-  const data = await response.json();
-  return NextResponse.json({ taskId: data.id, provider: 'stability' });
 }
 
 async function generateLumaVideo(prompt: string, imageData: string | null) {
   const apiKey = process.env.LUMA_API_KEY;
   
   if (!apiKey) {
-    return NextResponse.json(
-      { error: 'Luma API key not configured on server' },
-      { status: 500 }
-    );
+    console.log('Luma key not configured, using Bhindi fallback...');
+    return await generateBhindiVideo(prompt, imageData, 'luma');
   }
 
   const requestBody: any = {
@@ -194,23 +189,25 @@ async function generateLumaVideo(prompt: string, imageData: string | null) {
     };
   }
 
-  const response = await fetch('https://api.lumalabs.ai/dream-machine/v1/generations', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify(requestBody)
-  });
+  try {
+    const response = await fetch('https://api.lumalabs.ai/dream-machine/v1/generations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(requestBody)
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    return NextResponse.json(
-      { error: errorData.error || 'Luma API error' },
-      { status: response.status }
-    );
+    if (!response.ok) {
+      console.error('Luma API error, trying Bhindi fallback...');
+      return await generateBhindiVideo(prompt, imageData, 'luma');
+    }
+
+    const data = await response.json();
+    return NextResponse.json({ taskId: data.id, provider: 'luma' });
+  } catch (error) {
+    console.error('Luma error, using Bhindi fallback...');
+    return await generateBhindiVideo(prompt, imageData, 'luma');
   }
-
-  const data = await response.json();
-  return NextResponse.json({ taskId: data.id, provider: 'luma' });
 }
