@@ -1,0 +1,11 @@
+Force deployment trigger - Updated: 2026-01-23
+
+All API routes now use Bhindi fallback when keys are not configured.
+
+Changes:
+- Image generation: Uses Bhindi when OpenAI key missing
+- Video generation: Uses Bhindi when Runway/Stability/Luma keys missing
+- No more "API key not configured" errors
+- Seamless fallback experience
+
+Deployment will complete in 2-3 minutes.
