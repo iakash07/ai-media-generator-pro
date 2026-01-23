@@ -377,7 +377,7 @@ MIT License - feel free to use for personal or commercial projects.
 
 ## 🎯 Quick Links
 
-- 🔗 [Live Demo](#) (Deploy your own!)
+- 🔗 [Live Demo](https://ai-media-generator-bay.vercel.app/) (Deploy your own!)
 - 📚 [Documentation](#documentation)
 - 🐛 [Report Bug](https://github.com/iakash07/ai-media-generator-pro/issues)
 - 💡 [Request Feature](https://github.com/iakash07/ai-media-generator-pro/issues)
