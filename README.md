@@ -384,8 +384,6 @@ MIT License - feel free to use for personal or commercial projects.
 
 ---
 
-**Built with ❤️ using Next.js and AI**
-
 **⭐ Star this repo if you find it useful!**
 
 **🚀 Deploy now and start creating - no API keys required!**
