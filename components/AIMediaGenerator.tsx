@@ -18,6 +18,7 @@ interface GeneratedMedia {
   revisedPrompt?: string;
   isEdited?: boolean;
   fromImage?: boolean;
+  isGenerating?: boolean; // New field to track generation status
 }
 
 // Image component with loading state
@@ -111,6 +112,21 @@ export default function AIMediaGenerator() {
     setLoading(true);
     setError(null);
 
+    // Add placeholder to gallery immediately
+    const placeholderMedia: GeneratedMedia = {
+      type: 'image',
+      url: '',
+      prompt: prompt,
+      style: imageStyle,
+      size: imageSize,
+      timestamp: new Date().toLocaleString(),
+      isGenerating: true
+    };
+    
+    setGeneratedMedia([placeholderMedia, ...generatedMedia]);
+    const currentPrompt = prompt;
+    setPrompt('');
+
     try {
       const response = await fetch('https://api.openai.com/v1/images/generations', {
         method: 'POST',
@@ -120,7 +136,7 @@ export default function AIMediaGenerator() {
         },
         body: JSON.stringify({
           model: 'dall-e-3',
-          prompt: prompt,
+          prompt: currentPrompt,
           n: 1,
           size: imageSize,
           quality: 'hd',
@@ -135,21 +151,24 @@ export default function AIMediaGenerator() {
 
       const data = await response.json();
       
+      // Update the placeholder with actual image
       const newMedia: GeneratedMedia = {
         type: 'image',
         url: data.data[0].url,
-        prompt: prompt,
+        prompt: currentPrompt,
         style: imageStyle,
         size: imageSize,
         timestamp: new Date().toLocaleString(),
-        revisedPrompt: data.data[0].revised_prompt
+        revisedPrompt: data.data[0].revised_prompt,
+        isGenerating: false
       };
       
-      setGeneratedMedia([newMedia, ...generatedMedia]);
-      setPrompt('');
+      setGeneratedMedia(prev => [newMedia, ...prev.slice(1)]);
       
     } catch (err: any) {
       setError(`DALL-E Error: ${err.message}`);
+      // Remove placeholder on error
+      setGeneratedMedia(prev => prev.slice(1));
     } finally {
       setLoading(false);
     }
@@ -170,6 +189,21 @@ export default function AIMediaGenerator() {
     setLoading(true);
     setError(null);
 
+    // Add placeholder to gallery immediately
+    const placeholderMedia: GeneratedMedia = {
+      type: 'image',
+      url: '',
+      prompt: prompt,
+      size: imageSize,
+      timestamp: new Date().toLocaleString(),
+      isEdited: true,
+      isGenerating: true
+    };
+    
+    setGeneratedMedia([placeholderMedia, ...generatedMedia]);
+    const currentPrompt = prompt;
+    setPrompt('');
+
     try {
       // Convert base64 to blob
       const response = await fetch(uploadedImage);
@@ -178,7 +212,7 @@ export default function AIMediaGenerator() {
       // Create a square image with transparent background for editing
       const formData = new FormData();
       formData.append('image', blob, 'image.png');
-      formData.append('prompt', prompt);
+      formData.append('prompt', currentPrompt);
       formData.append('n', '1');
       formData.append('size', imageSize);
 
@@ -197,21 +231,24 @@ export default function AIMediaGenerator() {
 
       const data = await apiResponse.json();
       
+      // Update the placeholder with actual image
       const newMedia: GeneratedMedia = {
         type: 'image',
         url: data.data[0].url,
-        prompt: prompt,
+        prompt: currentPrompt,
         size: imageSize,
         timestamp: new Date().toLocaleString(),
-        isEdited: true
+        isEdited: true,
+        isGenerating: false
       };
       
-      setGeneratedMedia([newMedia, ...generatedMedia]);
+      setGeneratedMedia(prev => [newMedia, ...prev.slice(1)]);
       setUploadedImage(null);
-      setPrompt('');
       
     } catch (err: any) {
       setError(`Image Edit Error: ${err.message}`);
+      // Remove placeholder on error
+      setGeneratedMedia(prev => prev.slice(1));
     } finally {
       setLoading(false);
     }
@@ -234,17 +271,32 @@ export default function AIMediaGenerator() {
     setLoading(true);
     setError(null);
 
+    // Add placeholder to gallery immediately
+    const placeholderMedia: GeneratedMedia = {
+      type: 'video',
+      url: '',
+      prompt: prompt,
+      model: videoModel,
+      timestamp: new Date().toLocaleString(),
+      isGenerating: true
+    };
+    
+    setGeneratedMedia([placeholderMedia, ...generatedMedia]);
+    const currentPrompt = prompt;
+    setPrompt('');
+
     try {
       if (videoModel === 'runway') {
-        await generateRunwayVideo(prompt, null);
+        await generateRunwayVideo(currentPrompt, null);
       } else if (videoModel === 'stability') {
-        await generateStabilityVideo(prompt, null);
+        await generateStabilityVideo(currentPrompt, null);
       } else {
-        await generateLumaVideo(prompt, null);
+        await generateLumaVideo(currentPrompt, null);
       }
-      setPrompt('');
     } catch (err: any) {
       setError(`Video Generation Error: ${err.message}`);
+      // Remove placeholder on error
+      setGeneratedMedia(prev => prev.slice(1));
     } finally {
       setLoading(false);
     }
@@ -267,18 +319,34 @@ export default function AIMediaGenerator() {
     setLoading(true);
     setError(null);
 
+    // Add placeholder to gallery immediately
+    const placeholderMedia: GeneratedMedia = {
+      type: 'video',
+      url: '',
+      prompt: prompt || 'Animate this image',
+      model: videoModel,
+      timestamp: new Date().toLocaleString(),
+      fromImage: true,
+      isGenerating: true
+    };
+    
+    setGeneratedMedia([placeholderMedia, ...generatedMedia]);
+    const currentPrompt = prompt || 'Animate this image';
+    setPrompt('');
+
     try {
       if (videoModel === 'runway') {
-        await generateRunwayVideo(prompt || 'Animate this image', uploadedImage);
+        await generateRunwayVideo(currentPrompt, uploadedImage);
       } else if (videoModel === 'stability') {
-        await generateStabilityVideo(prompt || 'Animate this image', uploadedImage);
+        await generateStabilityVideo(currentPrompt, uploadedImage);
       } else {
-        await generateLumaVideo(prompt || 'Animate this image', uploadedImage);
+        await generateLumaVideo(currentPrompt, uploadedImage);
       }
       setUploadedImage(null);
-      setPrompt('');
     } catch (err: any) {
       setError(`Video Generation Error: ${err.message}`);
+      // Remove placeholder on error
+      setGeneratedMedia(prev => prev.slice(1));
     } finally {
       setLoading(false);
     }
@@ -342,16 +410,18 @@ export default function AIMediaGenerator() {
       throw new Error('Video generation timed out');
     }
 
+    // Update the placeholder with actual video
     const newMedia: GeneratedMedia = {
       type: 'video',
       url: videoUrl,
       prompt: promptText,
       model: 'runway',
       timestamp: new Date().toLocaleString(),
-      fromImage: !!imageData
+      fromImage: !!imageData,
+      isGenerating: false
     };
     
-    setGeneratedMedia([newMedia, ...generatedMedia]);
+    setGeneratedMedia(prev => [newMedia, ...prev.slice(1)]);
   };
 
   const generateStabilityVideo = async (promptText: string, imageData: string | null) => {
@@ -416,16 +486,18 @@ export default function AIMediaGenerator() {
       throw new Error('Video generation timed out');
     }
 
+    // Update the placeholder with actual video
     const newMedia: GeneratedMedia = {
       type: 'video',
       url: videoUrl,
       prompt: promptText,
       model: 'stability',
       timestamp: new Date().toLocaleString(),
-      fromImage: true
+      fromImage: true,
+      isGenerating: false
     };
     
-    setGeneratedMedia([newMedia, ...generatedMedia]);
+    setGeneratedMedia(prev => [newMedia, ...prev.slice(1)]);
   };
 
   const generateLumaVideo = async (promptText: string, imageData: string | null) => {
@@ -487,16 +559,18 @@ export default function AIMediaGenerator() {
       throw new Error('Video generation timed out');
     }
 
+    // Update the placeholder with actual video
     const newMedia: GeneratedMedia = {
       type: 'video',
       url: videoUrl,
       prompt: promptText,
       model: 'luma',
       timestamp: new Date().toLocaleString(),
-      fromImage: !!imageData
+      fromImage: !!imageData,
+      isGenerating: false
     };
     
-    setGeneratedMedia([newMedia, ...generatedMedia]);
+    setGeneratedMedia(prev => [newMedia, ...prev.slice(1)]);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -891,7 +965,14 @@ export default function AIMediaGenerator() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {generatedMedia.map((media, idx) => (
                 <div key={idx} className="bg-white rounded-lg overflow-hidden shadow-xl hover:shadow-2xl transition-all">
-                  {media.type === 'image' ? (
+                  {media.isGenerating ? (
+                    // Show spinner while generating
+                    <div className="w-full h-64 flex flex-col items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
+                      <Loader2 className="w-12 h-12 animate-spin text-purple-600 mb-4" />
+                      <p className="text-purple-800 font-medium">Generating {media.type}...</p>
+                      <p className="text-purple-600 text-sm mt-2">This may take 30-120 seconds</p>
+                    </div>
+                  ) : media.type === 'image' ? (
                     <ImageWithLoader 
                       src={media.url} 
                       alt={media.prompt} 
@@ -911,13 +992,15 @@ export default function AIMediaGenerator() {
                       </span>
                       <span>{media.timestamp}</span>
                     </div>
-                    <button
-                      onClick={() => handleDownload(media.url, idx, media.type)}
-                      className="w-full py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2 font-medium transition-colors"
-                    >
-                      <Download className="w-4 h-4" />
-                      Download
-                    </button>
+                    {!media.isGenerating && (
+                      <button
+                        onClick={() => handleDownload(media.url, idx, media.type)}
+                        className="w-full py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2 font-medium transition-colors"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
