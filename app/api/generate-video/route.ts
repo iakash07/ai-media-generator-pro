@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     // If no API keys, use free tier immediately
     if (!hasRunwayKey && !hasStabilityKey && !hasLumaKey) {
-      console.log('No API keys configured, using free tier video generation with audio...');
+      console.log('No API keys configured, using free tier video generation (Big Buck Bunny with audio)...');
       return generateFreeTierVideo(prompt, model);
     }
 
@@ -26,21 +26,21 @@ export async function POST(request: NextRequest) {
     switch (model) {
       case 'runway':
         if (!hasRunwayKey) {
-          console.log('Runway key not configured, using free tier with audio...');
+          console.log('Runway key not configured, using free tier (Big Buck Bunny with audio)...');
           return generateFreeTierVideo(prompt, 'runway');
         }
         return await generateRunwayVideo(prompt, imageData);
       
       case 'stability':
         if (!hasStabilityKey) {
-          console.log('Stability key not configured, using free tier with audio...');
+          console.log('Stability key not configured, using free tier (Big Buck Bunny with audio)...');
           return generateFreeTierVideo(prompt, 'stability');
         }
         return await generateStabilityVideo(prompt, imageData);
       
       case 'luma':
         if (!hasLumaKey) {
-          console.log('Luma key not configured, using free tier with audio...');
+          console.log('Luma key not configured, using free tier (Big Buck Bunny with audio)...');
           return generateFreeTierVideo(prompt, 'luma');
         }
         return await generateLumaVideo(prompt, imageData);
@@ -67,16 +67,16 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Free tier video generation (returns demo video with audio)
+// Free tier video generation (returns Big Buck Bunny with audio - 9 minutes)
 function generateFreeTierVideo(prompt: string, style: string) {
   const taskId = `free-tier-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
   return NextResponse.json({
     taskId: taskId,
     provider: 'free-tier',
-    message: `Video generation started (free tier demo with audio) - ${style} style`,
+    message: `Video generation started (free tier demo - Big Buck Bunny with audio) - ${style} style`,
     estimatedTime: '5-10 seconds',
-    note: 'Using demo video with audio for free tier. Add API keys for custom video generation.'
+    note: 'Using Big Buck Bunny (9 min, 56 sec) with full audio for free tier. Add API keys for custom video generation.'
   });
 }
 
@@ -110,7 +110,7 @@ async function generateRunwayVideo(prompt: string, imageData: string | null) {
     });
 
     if (!response.ok) {
-      console.error('Runway API error, using free tier fallback with audio...');
+      console.error('Runway API error, using free tier fallback (Big Buck Bunny with audio)...');
       return generateFreeTierVideo(prompt, 'runway');
     }
 
@@ -122,7 +122,7 @@ async function generateRunwayVideo(prompt: string, imageData: string | null) {
       estimatedTime: '30-60 seconds'
     });
   } catch (error) {
-    console.error('Runway error, using free tier fallback with audio...');
+    console.error('Runway error, using free tier fallback (Big Buck Bunny with audio)...');
     return generateFreeTierVideo(prompt, 'runway');
   }
 }
@@ -161,7 +161,7 @@ async function generateStabilityVideo(prompt: string, imageData: string | null) 
     });
 
     if (!response.ok) {
-      console.error('Stability API error, using free tier fallback with audio...');
+      console.error('Stability API error, using free tier fallback (Big Buck Bunny with audio)...');
       return generateFreeTierVideo(prompt, 'stability');
     }
 
@@ -173,7 +173,7 @@ async function generateStabilityVideo(prompt: string, imageData: string | null) 
       estimatedTime: '30-90 seconds'
     });
   } catch (error) {
-    console.error('Stability error, using free tier fallback with audio...');
+    console.error('Stability error, using free tier fallback (Big Buck Bunny with audio)...');
     return generateFreeTierVideo(prompt, 'stability');
   }
 }
@@ -211,7 +211,7 @@ async function generateLumaVideo(prompt: string, imageData: string | null) {
     });
 
     if (!response.ok) {
-      console.error('Luma API error, using free tier fallback with audio...');
+      console.error('Luma API error, using free tier fallback (Big Buck Bunny with audio)...');
       return generateFreeTierVideo(prompt, 'luma');
     }
 
@@ -223,7 +223,7 @@ async function generateLumaVideo(prompt: string, imageData: string | null) {
       estimatedTime: '60-120 seconds'
     });
   } catch (error) {
-    console.error('Luma error, using free tier fallback with audio...');
+    console.error('Luma error, using free tier fallback (Big Buck Bunny with audio)...');
     return generateFreeTierVideo(prompt, 'luma');
   }
 }
