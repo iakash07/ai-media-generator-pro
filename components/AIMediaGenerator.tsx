@@ -20,6 +20,41 @@ interface GeneratedMedia {
   fromImage?: boolean;
 }
 
+// Image component with loading state
+function ImageWithLoader({ src, alt, className }: { src: string; alt: string; className: string }) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  return (
+    <div className="relative">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            <span className="text-sm text-gray-600">Loading image...</span>
+          </div>
+        </div>
+      )}
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <span className="text-sm text-red-600">Failed to load image</span>
+        </div>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        className={className}
+        onLoad={() => setLoading(false)}
+        onError={() => {
+          setLoading(false);
+          setError(true);
+        }}
+        style={{ display: loading ? 'none' : 'block' }}
+      />
+    </div>
+  );
+}
+
 export default function AIMediaGenerator() {
   const [mode, setMode] = useState<'image' | 'text-to-video' | 'image-to-video'>('image');
   const [prompt, setPrompt] = useState('');
@@ -306,7 +341,7 @@ export default function AIMediaGenerator() {
     if (!videoUrl) {
       throw new Error('Video generation timed out');
     }
-    
+
     const newMedia: GeneratedMedia = {
       type: 'video',
       url: videoUrl,
@@ -320,22 +355,22 @@ export default function AIMediaGenerator() {
   };
 
   const generateStabilityVideo = async (promptText: string, imageData: string | null) => {
-    const formData = new FormData();
-    
-    if (imageData) {
-      // Image to Video
-      const response = await fetch(imageData);
-      const blob = await response.blob();
-      formData.append('image', blob, 'image.png');
-      formData.append('seed', '0');
-      formData.append('cfg_scale', '1.8');
-      formData.append('motion_bucket_id', '127');
-    } else {
-      // Text to Video (using image generation first)
-      throw new Error('Stability AI requires an image. Please use image-to-video mode.');
+    if (!imageData) {
+      throw new Error('Stability AI requires an image for video generation');
     }
 
-    const apiResponse = await fetch('https://api.stability.ai/v2beta/image-to-video', {
+    // Convert base64 to blob
+    const base64Data = imageData.split(',')[1];
+    const buffer = Buffer.from(base64Data, 'base64');
+    
+    const formData = new FormData();
+    const blob = new Blob([buffer], { type: 'image/png' });
+    formData.append('image', blob, 'image.png');
+    formData.append('seed', '0');
+    formData.append('cfg_scale', '1.8');
+    formData.append('motion_bucket_id', '127');
+
+    const response = await fetch('https://api.stability.ai/v2beta/image-to-video', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${stabilityKey}`
@@ -343,36 +378,34 @@ export default function AIMediaGenerator() {
       body: formData
     });
 
-    if (!apiResponse.ok) {
-      const errorData = await apiResponse.json();
-      throw new Error(errorData.message || errorData.error || 'Stability API error');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Stability API error');
     }
 
-    const data = await apiResponse.json();
+    const data = await response.json();
     const generationId = data.id;
-    
+
     // Poll for completion
     let videoUrl = null;
     
     for (let i = 0; i < 60; i++) {
       await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
       
-      const resultResponse = await fetch(
-        `https://api.stability.ai/v2beta/image-to-video/result/${generationId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${stabilityKey}`,
-            'Accept': 'video/*'
-          }
+      const resultResponse = await fetch(`https://api.stability.ai/v2beta/image-to-video/result/${generationId}`, {
+        headers: {
+          'Authorization': `Bearer ${stabilityKey}`,
+          'Accept': 'application/json'
         }
-      );
+      });
 
       if (resultResponse.status === 202) {
         continue; // Still processing
-      } else if (resultResponse.ok) {
-        const videoBlob = await resultResponse.blob();
-        videoUrl = URL.createObjectURL(videoBlob);
+      }
+
+      if (resultResponse.ok) {
+        const resultData = await resultResponse.json();
+        videoUrl = resultData.video;
         break;
       } else {
         throw new Error('Video generation failed');
@@ -382,14 +415,14 @@ export default function AIMediaGenerator() {
     if (!videoUrl) {
       throw new Error('Video generation timed out');
     }
-    
+
     const newMedia: GeneratedMedia = {
       type: 'video',
       url: videoUrl,
       prompt: promptText,
       model: 'stability',
       timestamp: new Date().toLocaleString(),
-      fromImage: !!imageData
+      fromImage: true
     };
     
     setGeneratedMedia([newMedia, ...generatedMedia]);
@@ -422,41 +455,38 @@ export default function AIMediaGenerator() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || errorData.message || 'Luma API error');
+      throw new Error(errorData.error?.message || 'Luma API error');
     }
 
     const data = await response.json();
     const generationId = data.id;
-    
+
     // Poll for completion
     let videoUrl = null;
     
     for (let i = 0; i < 120; i++) {
       await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
       
-      const statusResponse = await fetch(
-        `https://api.lumalabs.ai/dream-machine/v1/generations/${generationId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${lumaKey}`
-          }
+      const statusResponse = await fetch(`https://api.lumalabs.ai/dream-machine/v1/generations/${generationId}`, {
+        headers: {
+          'Authorization': `Bearer ${lumaKey}`
         }
-      );
-      
+      });
+
       const statusData = await statusResponse.json();
       
       if (statusData.state === 'completed') {
-        videoUrl = statusData.assets?.video || statusData.video?.url;
+        videoUrl = statusData.assets?.video;
         break;
       } else if (statusData.state === 'failed') {
-        throw new Error(statusData.failure_reason || 'Video generation failed');
+        throw new Error('Video generation failed');
       }
     }
 
     if (!videoUrl) {
       throw new Error('Video generation timed out');
     }
-    
+
     const newMedia: GeneratedMedia = {
       type: 'video',
       url: videoUrl,
@@ -471,16 +501,18 @@ export default function AIMediaGenerator() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setUploadedImage(event.target?.result as string);
-        setError(null);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setError('Please upload a valid image file');
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image must be less than 10MB');
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUploadedImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleGenerate = () => {
@@ -497,60 +529,57 @@ export default function AIMediaGenerator() {
     }
   };
 
-  const handleDownload = async (url: string, index: number, type: string) => {
+  const handleDownload = async (url: string, index: number, type: 'image' | 'video') => {
     try {
       const response = await fetch(url);
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = `ai-generated-${type}-${index}-${Date.now()}.${type === 'video' ? 'mp4' : 'png'}`;
+      link.download = `${type}-${index + 1}.${type === 'image' ? 'png' : 'mp4'}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `ai-generated-${type}-${index}.${type === 'video' ? 'mp4' : 'png'}`;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    } catch (error) {
+      setError('Failed to download file');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Sparkles className="w-10 h-10 text-yellow-400" />
-            <h1 className="text-4xl font-bold text-white">AI Media Generator Pro</h1>
-          </div>
-          <p className="text-indigo-200">DALL-E 3 Images • Runway Gen-3 • Stability AI • Luma AI</p>
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+            <Sparkles className="w-12 h-12 text-yellow-400" />
+            AI Media Generator Pro
+          </h1>
+          <p className="text-xl text-white/80">Create stunning images and videos with AI</p>
         </div>
 
-        {/* Settings Modal */}
+        {/* API Settings Modal */}
         {showSettings && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                     <Key className="w-6 h-6" />
-                    API Keys Configuration
+                    API Settings
                   </h2>
-                  <button onClick={() => setShowSettings(false)} className="text-gray-500 hover:text-gray-700">
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
                     <X className="w-6 h-6" />
                   </button>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      OpenAI API Key (for DALL-E 3)
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      OpenAI API Key (for images)
                     </label>
                     <input
                       type="password"
@@ -563,21 +592,21 @@ export default function AIMediaGenerator() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Runway API Key (for Gen-3 video)
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Runway API Key (for videos)
                     </label>
                     <input
                       type="password"
                       value={runwayKey}
                       onChange={(e) => setRunwayKey(e.target.value)}
-                      placeholder="runway_..."
+                      placeholder="key_..."
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
                     <p className="text-xs text-gray-500 mt-1">Get your key from: runwayml.com</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Stability AI API Key (for image-to-video)
                     </label>
                     <input
@@ -587,12 +616,12 @@ export default function AIMediaGenerator() {
                       placeholder="sk-..."
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Get your key from: stability.ai</p>
+                    <p className="text-xs text-gray-500 mt-1">Get your key from: platform.stability.ai</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Luma AI API Key (Dream Machine)
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Luma AI API Key (for videos)
                     </label>
                     <input
                       type="password"
@@ -863,7 +892,11 @@ export default function AIMediaGenerator() {
               {generatedMedia.map((media, idx) => (
                 <div key={idx} className="bg-white rounded-lg overflow-hidden shadow-xl hover:shadow-2xl transition-all">
                   {media.type === 'image' ? (
-                    <img src={media.url} alt={media.prompt} className="w-full h-64 object-cover" />
+                    <ImageWithLoader 
+                      src={media.url} 
+                      alt={media.prompt} 
+                      className="w-full h-64 object-cover" 
+                    />
                   ) : (
                     <video src={media.url} controls className="w-full h-64 object-cover bg-black" />
                   )}
