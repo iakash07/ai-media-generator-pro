@@ -13,26 +13,33 @@ export async function POST(request: NextRequest) {
 
     const apiKey = process.env.OPENAI_API_KEY;
 
-    // If no OpenAI key, automatically use Bhindi fallback
+    // If no OpenAI key, automatically use Pollinations.ai fallback (free, no API key needed)
     if (!apiKey) {
-      console.log('OpenAI API key not configured, using Bhindi fallback...');
+      console.log('OpenAI API key not configured, using Pollinations.ai fallback...');
       
-      // Map size to aspect ratio for Bhindi
-      let aspectRatio = '1:1';
-      if (size === '1792x1024') aspectRatio = '16:9';
-      else if (size === '1024x1792') aspectRatio = '9:16';
-
-      // Use Bhindi's Gemini Nano Banana Pro directly
-      try {
-        const bhindiResponse = await generateWithBhindi(prompt, aspectRatio);
-        return NextResponse.json(bhindiResponse);
-      } catch (bhindiError: any) {
-        console.error('Bhindi fallback error:', bhindiError);
-        return NextResponse.json(
-          { error: 'Image generation failed. Please try again.' },
-          { status: 500 }
-        );
+      // Map size to dimensions for Pollinations
+      let width = 1024;
+      let height = 1024;
+      if (size === '1792x1024') {
+        width = 1792;
+        height = 1024;
+      } else if (size === '1024x1792') {
+        width = 1024;
+        height = 1792;
       }
+
+      // Use Pollinations.ai - free, no API key needed, real images
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&nologo=true&enhance=true`;
+      
+      return NextResponse.json({
+        data: [{
+          url: pollinationsUrl,
+          revised_prompt: prompt
+        }],
+        provider: 'pollinations',
+        model: 'pollinations-ai',
+        message: 'Generated using Pollinations.ai (free tier - no API key required)'
+      });
     }
 
     // Use OpenAI if key is available
@@ -54,23 +61,30 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
+      console.error('OpenAI API error, trying Pollinations fallback...');
       
-      // If OpenAI fails, try Bhindi fallback
-      console.log('OpenAI failed, trying Bhindi fallback...');
-      let aspectRatio = '1:1';
-      if (size === '1792x1024') aspectRatio = '16:9';
-      else if (size === '1024x1792') aspectRatio = '9:16';
-      
-      try {
-        const bhindiResponse = await generateWithBhindi(prompt, aspectRatio);
-        return NextResponse.json(bhindiResponse);
-      } catch (bhindiError) {
-        return NextResponse.json(
-          { error: errorData.error?.message || 'Failed to generate image' },
-          { status: response.status }
-        );
+      // If OpenAI fails, use Pollinations fallback
+      let width = 1024;
+      let height = 1024;
+      if (size === '1792x1024') {
+        width = 1792;
+        height = 1024;
+      } else if (size === '1024x1792') {
+        width = 1024;
+        height = 1792;
       }
+      
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&nologo=true&enhance=true`;
+      
+      return NextResponse.json({
+        data: [{
+          url: pollinationsUrl,
+          revised_prompt: prompt
+        }],
+        provider: 'pollinations',
+        model: 'pollinations-ai',
+        message: 'Generated using Pollinations.ai fallback'
+      });
     }
 
     const data = await response.json();
@@ -82,28 +96,35 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Image generation error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+    
+    // Last resort fallback to Pollinations
+    try {
+      const { prompt, size = '1024x1024' } = await request.json();
+      let width = 1024;
+      let height = 1024;
+      if (size === '1792x1024') {
+        width = 1792;
+        height = 1024;
+      } else if (size === '1024x1792') {
+        width = 1024;
+        height = 1792;
+      }
+      
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&nologo=true&enhance=true`;
+      
+      return NextResponse.json({
+        data: [{
+          url: pollinationsUrl,
+          revised_prompt: prompt
+        }],
+        provider: 'pollinations',
+        model: 'pollinations-ai'
+      });
+    } catch (fallbackError) {
+      return NextResponse.json(
+        { error: error.message || 'Internal server error' },
+        { status: 500 }
+      );
+    }
   }
-}
-
-// Helper function to generate with Bhindi
-async function generateWithBhindi(prompt: string, aspectRatio: string) {
-  // For now, return a mock response that indicates Bhindi would be used
-  // In production, this would call actual Bhindi API
-  
-  // Simulate Bhindi API call
-  const mockImageUrl = `https://via.placeholder.com/1024x1024/6366f1/ffffff?text=${encodeURIComponent('Generated with Bhindi Fallback: ' + prompt.substring(0, 30))}`;
-  
-  return {
-    data: [{
-      url: mockImageUrl,
-      revised_prompt: prompt
-    }],
-    provider: 'bhindi',
-    model: 'gemini-nano-banana-pro',
-    message: 'Generated using Bhindi free tier (OpenAI key not configured)'
-  };
 }
