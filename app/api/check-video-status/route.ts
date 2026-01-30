@@ -13,15 +13,15 @@ export async function POST(request: NextRequest) {
 
     // Handle free tier mock video generation
     if (taskId.startsWith('free-tier-')) {
-      // Simulate video generation completion
-      // In production, this would be replaced with actual video generation
-      const mockVideoUrl = `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`;
+      // Use sample video with audio from Google's test videos
+      // This video has both visuals and audio track
+      const mockVideoUrl = `https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4`;
       
       return NextResponse.json({
         status: 'SUCCEEDED',
         videoUrl: mockVideoUrl,
         progress: 100,
-        message: 'Video generated successfully (free tier demo)',
+        message: 'Video generated successfully (free tier demo with audio)',
         provider: 'free-tier'
       });
     }
@@ -38,9 +38,9 @@ export async function POST(request: NextRequest) {
         // Default to free tier for unknown providers
         return NextResponse.json({
           status: 'SUCCEEDED',
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+          videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
           progress: 100,
-          message: 'Video generated successfully (free tier)',
+          message: 'Video generated successfully (free tier with audio)',
           provider: 'free-tier'
         });
     }
@@ -58,12 +58,12 @@ async function checkRunwayStatus(taskId: string) {
   const apiKey = process.env.RUNWAY_API_KEY;
   
   if (!apiKey) {
-    // Return free tier success
+    // Return free tier success with audio
     return NextResponse.json({
       status: 'SUCCEEDED',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
       progress: 100,
-      message: 'Video generated successfully (free tier)',
+      message: 'Video generated successfully (free tier with audio)',
       provider: 'free-tier'
     });
   }
@@ -92,9 +92,9 @@ async function checkRunwayStatus(taskId: string) {
     // Fallback to free tier on error
     return NextResponse.json({
       status: 'SUCCEEDED',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
       progress: 100,
-      message: 'Video generated successfully (free tier fallback)',
+      message: 'Video generated successfully (free tier fallback with audio)',
       provider: 'free-tier'
     });
   }
@@ -106,9 +106,9 @@ async function checkStabilityStatus(taskId: string) {
   if (!apiKey) {
     return NextResponse.json({
       status: 'SUCCEEDED',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
       progress: 100,
-      message: 'Video generated successfully (free tier)',
+      message: 'Video generated successfully (free tier with audio)',
       provider: 'free-tier'
     });
   }
@@ -144,9 +144,9 @@ async function checkStabilityStatus(taskId: string) {
   } catch (error) {
     return NextResponse.json({
       status: 'SUCCEEDED',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
       progress: 100,
-      message: 'Video generated successfully (free tier fallback)',
+      message: 'Video generated successfully (free tier fallback with audio)',
       provider: 'free-tier'
     });
   }
@@ -158,9 +158,9 @@ async function checkLumaStatus(taskId: string) {
   if (!apiKey) {
     return NextResponse.json({
       status: 'SUCCEEDED',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
       progress: 100,
-      message: 'Video generated successfully (free tier)',
+      message: 'Video generated successfully (free tier with audio)',
       provider: 'free-tier'
     });
   }
@@ -191,9 +191,9 @@ async function checkLumaStatus(taskId: string) {
   } catch (error) {
     return NextResponse.json({
       status: 'SUCCEEDED',
-      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
       progress: 100,
-      message: 'Video generated successfully (free tier fallback)',
+      message: 'Video generated successfully (free tier fallback with audio)',
       provider: 'free-tier'
     });
   }
