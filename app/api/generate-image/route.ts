@@ -28,8 +28,12 @@ export async function POST(request: NextRequest) {
         height = 1792;
       }
 
+      // Add random seed to prevent caching and ensure unique images
+      const seed = Math.floor(Math.random() * 1000000);
+      
       // Use Pollinations.ai - free, no API key needed, real images
-      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&nologo=true&enhance=true`;
+      // Adding seed parameter ensures different images for same prompt
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true`;
       
       return NextResponse.json({
         data: [{
@@ -38,6 +42,7 @@ export async function POST(request: NextRequest) {
         }],
         provider: 'pollinations',
         model: 'pollinations-ai',
+        seed: seed,
         message: 'Generated using Pollinations.ai (free tier - no API key required)'
       });
     }
@@ -63,7 +68,7 @@ export async function POST(request: NextRequest) {
       const errorData = await response.json();
       console.error('OpenAI API error, trying Pollinations fallback...');
       
-      // If OpenAI fails, use Pollinations fallback
+      // If OpenAI fails, use Pollinations fallback with seed
       let width = 1024;
       let height = 1024;
       if (size === '1792x1024') {
@@ -74,7 +79,8 @@ export async function POST(request: NextRequest) {
         height = 1792;
       }
       
-      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&nologo=true&enhance=true`;
+      const seed = Math.floor(Math.random() * 1000000);
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true`;
       
       return NextResponse.json({
         data: [{
@@ -83,6 +89,7 @@ export async function POST(request: NextRequest) {
         }],
         provider: 'pollinations',
         model: 'pollinations-ai',
+        seed: seed,
         message: 'Generated using Pollinations.ai fallback'
       });
     }
@@ -97,7 +104,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Image generation error:', error);
     
-    // Last resort fallback to Pollinations
+    // Last resort fallback to Pollinations with seed
     try {
       const { prompt, size = '1024x1024' } = await request.json();
       let width = 1024;
@@ -110,7 +117,8 @@ export async function POST(request: NextRequest) {
         height = 1792;
       }
       
-      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&nologo=true&enhance=true`;
+      const seed = Math.floor(Math.random() * 1000000);
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true`;
       
       return NextResponse.json({
         data: [{
@@ -118,7 +126,8 @@ export async function POST(request: NextRequest) {
           revised_prompt: prompt
         }],
         provider: 'pollinations',
-        model: 'pollinations-ai'
+        model: 'pollinations-ai',
+        seed: seed
       });
     } catch (fallbackError) {
       return NextResponse.json(
