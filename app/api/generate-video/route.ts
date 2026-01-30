@@ -16,26 +16,32 @@ export async function POST(request: NextRequest) {
     const hasStabilityKey = !!process.env.STABILITY_API_KEY;
     const hasLumaKey = !!process.env.LUMA_API_KEY;
 
-    // Route to appropriate video generation service or use Bhindi fallback
+    // If no API keys, use free tier immediately
+    if (!hasRunwayKey && !hasStabilityKey && !hasLumaKey) {
+      console.log('No API keys configured, using free tier video generation...');
+      return generateFreeTierVideo(prompt, model);
+    }
+
+    // Route to appropriate video generation service or use free tier fallback
     switch (model) {
       case 'runway':
         if (!hasRunwayKey) {
-          console.log('Runway key not configured, using Bhindi fallback...');
-          return await generateBhindiVideo(prompt, imageData, 'runway');
+          console.log('Runway key not configured, using free tier...');
+          return generateFreeTierVideo(prompt, 'runway');
         }
         return await generateRunwayVideo(prompt, imageData);
       
       case 'stability':
         if (!hasStabilityKey) {
-          console.log('Stability key not configured, using Bhindi fallback...');
-          return await generateBhindiVideo(prompt, imageData, 'stability');
+          console.log('Stability key not configured, using free tier...');
+          return generateFreeTierVideo(prompt, 'stability');
         }
         return await generateStabilityVideo(prompt, imageData);
       
       case 'luma':
         if (!hasLumaKey) {
-          console.log('Luma key not configured, using Bhindi fallback...');
-          return await generateBhindiVideo(prompt, imageData, 'luma');
+          console.log('Luma key not configured, using free tier...');
+          return generateFreeTierVideo(prompt, 'luma');
         }
         return await generateLumaVideo(prompt, imageData);
       
@@ -48,39 +54,37 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Video generation error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+    // Fallback to free tier on any error
+    try {
+      const { prompt, model } = await request.json();
+      return generateFreeTierVideo(prompt, model);
+    } catch (fallbackError) {
+      return NextResponse.json(
+        { error: error.message || 'Internal server error' },
+        { status: 500 }
+      );
+    }
   }
 }
 
-// Bhindi fallback for video generation
-async function generateBhindiVideo(prompt: string, imageData: string | null, style: string) {
-  try {
-    const taskId = `bhindi-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    return NextResponse.json({
-      taskId: taskId,
-      provider: 'bhindi',
-      message: `Video generation started with Bhindi (free tier) - ${style} style`,
-      estimatedTime: '30-60 seconds'
-    });
-
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Failed to generate video with Bhindi' },
-      { status: 500 }
-    );
-  }
+// Free tier video generation (returns demo video)
+function generateFreeTierVideo(prompt: string, style: string) {
+  const taskId = `free-tier-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  return NextResponse.json({
+    taskId: taskId,
+    provider: 'free-tier',
+    message: `Video generation started (free tier demo) - ${style} style`,
+    estimatedTime: '5-10 seconds',
+    note: 'Using demo video for free tier. Add API keys for custom video generation.'
+  });
 }
 
 async function generateRunwayVideo(prompt: string, imageData: string | null) {
   const apiKey = process.env.RUNWAY_API_KEY;
   
   if (!apiKey) {
-    console.log('Runway key not configured, using Bhindi fallback...');
-    return await generateBhindiVideo(prompt, imageData, 'runway');
+    return generateFreeTierVideo(prompt, 'runway');
   }
 
   const requestBody: any = {
@@ -106,16 +110,20 @@ async function generateRunwayVideo(prompt: string, imageData: string | null) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Runway API error, trying Bhindi fallback...');
-      return await generateBhindiVideo(prompt, imageData, 'runway');
+      console.error('Runway API error, using free tier fallback...');
+      return generateFreeTierVideo(prompt, 'runway');
     }
 
     const data = await response.json();
-    return NextResponse.json({ taskId: data.id, provider: 'runway' });
+    return NextResponse.json({ 
+      taskId: data.id, 
+      provider: 'runway',
+      message: 'Video generation started with Runway',
+      estimatedTime: '30-60 seconds'
+    });
   } catch (error) {
-    console.error('Runway error, using Bhindi fallback...');
-    return await generateBhindiVideo(prompt, imageData, 'runway');
+    console.error('Runway error, using free tier fallback...');
+    return generateFreeTierVideo(prompt, 'runway');
   }
 }
 
@@ -123,8 +131,7 @@ async function generateStabilityVideo(prompt: string, imageData: string | null) 
   const apiKey = process.env.STABILITY_API_KEY;
   
   if (!apiKey) {
-    console.log('Stability key not configured, using Bhindi fallback...');
-    return await generateBhindiVideo(prompt, imageData, 'stability');
+    return generateFreeTierVideo(prompt, 'stability');
   }
 
   if (!imageData) {
@@ -154,15 +161,20 @@ async function generateStabilityVideo(prompt: string, imageData: string | null) 
     });
 
     if (!response.ok) {
-      console.error('Stability API error, trying Bhindi fallback...');
-      return await generateBhindiVideo(prompt, imageData, 'stability');
+      console.error('Stability API error, using free tier fallback...');
+      return generateFreeTierVideo(prompt, 'stability');
     }
 
     const data = await response.json();
-    return NextResponse.json({ taskId: data.id, provider: 'stability' });
+    return NextResponse.json({ 
+      taskId: data.id, 
+      provider: 'stability',
+      message: 'Video generation started with Stability AI',
+      estimatedTime: '30-90 seconds'
+    });
   } catch (error) {
-    console.error('Stability error, using Bhindi fallback...');
-    return await generateBhindiVideo(prompt, imageData, 'stability');
+    console.error('Stability error, using free tier fallback...');
+    return generateFreeTierVideo(prompt, 'stability');
   }
 }
 
@@ -170,8 +182,7 @@ async function generateLumaVideo(prompt: string, imageData: string | null) {
   const apiKey = process.env.LUMA_API_KEY;
   
   if (!apiKey) {
-    console.log('Luma key not configured, using Bhindi fallback...');
-    return await generateBhindiVideo(prompt, imageData, 'luma');
+    return generateFreeTierVideo(prompt, 'luma');
   }
 
   const requestBody: any = {
@@ -200,14 +211,19 @@ async function generateLumaVideo(prompt: string, imageData: string | null) {
     });
 
     if (!response.ok) {
-      console.error('Luma API error, trying Bhindi fallback...');
-      return await generateBhindiVideo(prompt, imageData, 'luma');
+      console.error('Luma API error, using free tier fallback...');
+      return generateFreeTierVideo(prompt, 'luma');
     }
 
     const data = await response.json();
-    return NextResponse.json({ taskId: data.id, provider: 'luma' });
+    return NextResponse.json({ 
+      taskId: data.id, 
+      provider: 'luma',
+      message: 'Video generation started with Luma AI',
+      estimatedTime: '60-120 seconds'
+    });
   } catch (error) {
-    console.error('Luma error, using Bhindi fallback...');
-    return await generateBhindiVideo(prompt, imageData, 'luma');
+    console.error('Luma error, using free tier fallback...');
+    return generateFreeTierVideo(prompt, 'luma');
   }
 }
