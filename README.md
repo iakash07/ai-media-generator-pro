@@ -1,6 +1,6 @@
 # 🎨 AI Media Generator Pro
 
-A professional-grade AI media generation platform with **automatic fallback system** - works with or without API keys! Supports **DALL-E 3** for images and **Runway Gen-3**, **Stability AI**, and **Luma AI** for videos.
+A professional-grade AI media generation platform with **FREE Gemini image generation** and optional premium providers! Create stunning images and videos with **Gemini Nano Banana Pro** (FREE), **DALL-E 3**, **Runway Gen-3**, **Stability AI**, and **Luma AI**.
 
 ![AI Media Generator](https://img.shields.io/badge/AI-Media%20Generator-purple?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
@@ -9,41 +9,42 @@ A professional-grade AI media generation platform with **automatic fallback syst
 
 ## ✨ Key Features
 
-### 🎯 **Works With or Without API Keys!**
-- ✅ **With API Keys**: Premium quality (DALL-E 3, Runway, etc.)
-- ✅ **Without API Keys**: Free tier with Bhindi fallback
-- ✅ **Automatic Fallback**: Seamlessly switches when keys not configured
-- ✅ **No Configuration**: Users can start creating immediately
+### 🎯 **FREE Image Generation with Gemini!**
+- ✨ **Gemini Nano Banana Pro** - 100% FREE, unlimited images!
+- 🎨 **High Quality** - Professional-grade results
+- ⚡ **Fast** - 10-30 second generation
+- 🎭 **5 Aspect Ratios** - Perfect for any use case
+- 💰 **No Costs** - Zero API fees
 
-### 🖼️ Image Generation
-- **DALL-E 3** (with OpenAI key) - HD quality, vivid/natural styles
-- **Bhindi Gemini** (automatic fallback) - Good quality, free tier
-- Multiple sizes: 1024x1024, 1792x1024, 1024x1792
-- Revised prompt display
+### 🖼️ Image Generation Options
+- **✨ Gemini Nano Banana Pro** (FREE, default) - High quality, 5 aspect ratios
+- **DALL-E 3** (optional, with OpenAI key) - HD quality, vivid/natural styles
+- Multiple sizes and aspect ratios
+- Advanced text rendering
+- Search grounding for factual accuracy
 
 ### 🎬 Video Generation
 - **Runway Gen-3 Turbo** - Text-to-video & Image-to-video
 - **Stability AI** - Image-to-video animations
 - **Luma AI Dream Machine** - Advanced video generation
-- **Bhindi Video** (automatic fallback) - Free tier for all models
 - 5-second video duration, 16:9 aspect ratio
 
 ### 🎯 Generation Modes
-1. **Image Generation** - Create stunning images from text
+1. **Image Generation** - Create stunning images from text (FREE with Gemini!)
 2. **Text-to-Video** - Generate videos from descriptions
 3. **Image-to-Video** - Animate your images
 
 ## 🚀 Quick Start
 
-### For Users (No Setup Required!)
+### For Users (Start Creating NOW!)
 
 Just visit the deployed site and start creating:
 1. Enter your prompt
-2. Choose settings
+2. Choose "Gemini (Free)" as provider (default)
 3. Click Generate
 4. Download your creation!
 
-**No API keys, no configuration, no friction!**
+**✨ Gemini is FREE - No API keys needed for images!**
 
 ### For Developers (Deploy Your Own)
 
@@ -58,17 +59,20 @@ cd ai-media-generator-pro
 npm install
 ```
 
-#### 3. (Optional) Set up API keys for premium quality
+#### 3. Set up Bhindi API key (for FREE Gemini)
 Create `.env.local` file:
 ```bash
-# Optional - for premium quality
-OPENAI_API_KEY=sk-your-openai-key
-RUNWAY_API_KEY=your-runway-key
-STABILITY_API_KEY=sk-your-stability-key
-LUMA_API_KEY=your-luma-key
+# Required for FREE Gemini image generation
+BHINDI_API_KEY=your-bhindi-api-key-here
 
-# If not provided, app uses free Bhindi fallback automatically!
+# Optional - for premium quality alternatives
+NEXT_PUBLIC_OPENAI_API_KEY=sk-your-openai-key
+NEXT_PUBLIC_RUNWAY_API_KEY=your-runway-key
+NEXT_PUBLIC_STABILITY_API_KEY=sk-your-stability-key
+NEXT_PUBLIC_LUMA_API_KEY=your-luma-key
 ```
+
+Get your FREE Bhindi API key at: https://bhindi.io
 
 #### 4. Run development server
 ```bash
@@ -78,44 +82,50 @@ npm run dev
 #### 5. Open browser
 Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 🔑 API Keys (Optional)
+## 🔑 API Keys
 
-### For Premium Quality (Optional)
-- **OpenAI**: https://platform.openai.com (for HD images)
+### For FREE Image Generation (Recommended!)
+- **Bhindi**: https://bhindi.io - Get your FREE API key
+  - ✨ Unlimited Gemini image generation
+  - 🎨 Professional quality
+  - ⚡ Fast generation
+  - 💰 Zero costs
+
+### For Premium Alternatives (Optional)
+- **OpenAI**: https://platform.openai.com (for DALL-E 3 images)
 - **Runway**: https://runwayml.com (for premium videos)
 - **Stability AI**: https://stability.ai (for image-to-video)
 - **Luma AI**: https://lumalabs.ai (for advanced videos)
-
-### For Free Tier (No Keys Needed)
-- **Bhindi**: Automatic fallback, no configuration required!
 
 ## 🌐 Deploy to Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/iakash07/ai-media-generator-pro)
 
 1. Click the button above
-2. **(Optional)** Add API keys for premium quality
-3. Deploy!
+2. Add your `BHINDI_API_KEY` for FREE Gemini images
+3. **(Optional)** Add other API keys for premium features
+4. Deploy!
 
-**Works immediately even without API keys!**
+**Get started with FREE Gemini in minutes!**
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+See [GEMINI_SETUP.md](GEMINI_SETUP.md) for detailed Gemini setup instructions.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for general deployment guide.
 
 ## 📖 How It Works
 
-### Architecture with Automatic Fallback
+### Image Generation Flow
 
 ```
 User Request
     ↓
-Check API Keys
+Choose Provider
     ↓
 ┌─────────────────┬─────────────────┐
-│  Keys Found     │  No Keys Found  │
-│  (Premium)      │  (Free Tier)    │
+│  Gemini (FREE)  │  DALL-E (Paid)  │
+│  (Default)      │  (Optional)     │
 ├─────────────────┼─────────────────┤
-│ OpenAI/Runway   │ Bhindi Fallback │
-│ Stability/Luma  │ (Automatic)     │
+│ Bhindi API      │ OpenAI API      │
+│ No costs!       │ ~$0.08/image    │
 └─────────────────┴─────────────────┘
     ↓                    ↓
   Result              Result
@@ -124,35 +134,40 @@ Check API Keys
 ### API Routes
 
 **Image Generation**:
-1. `/api/generate-image` - Tries OpenAI DALL-E 3
-2. `/api/generate-image-bhindi` - Bhindi fallback (automatic)
+1. `/api/gemini-image` - FREE Gemini Nano Banana Pro (default)
+2. `/api/generate-image` - DALL-E 3 (optional)
 
 **Video Generation**:
-1. `/api/generate-video` - Tries Runway/Stability/Luma
-2. `/api/generate-video-bhindi` - Bhindi fallback (automatic)
-
-**Status Checking**:
-1. `/api/check-video-status` - Checks all providers
-2. `/api/check-video-status-bhindi` - Bhindi status
+1. `/api/generate-video` - Runway/Stability/Luma
 
 ### Security
 
 - ✅ API keys stored server-side only
 - ✅ Never exposed to client
 - ✅ Secure environment variables
-- ✅ Automatic fallback when keys missing
+- ✅ FREE tier with Gemini
 
 ## 🎨 Usage Examples
 
-### Generate an Image
+### Generate a FREE Image with Gemini
 ```
+Provider: ✨ Gemini (Free) [DEFAULT]
 Prompt: "A majestic dragon flying over a medieval castle at sunset"
-Style: Vivid
-Size: 1024x1024
+Aspect Ratio: 16:9
 → Click Generate → Wait 10-30 seconds → Download!
 
-With OpenAI key: HD quality, DALL-E 3
-Without key: Good quality, Bhindi Gemini (automatic)
+Result: High-quality image, 100% FREE!
+```
+
+### Generate Premium Image with DALL-E
+```
+Provider: DALL-E
+Prompt: "A serene landscape with mountains at sunset"
+Style: Vivid
+Size: 1024x1024
+→ Click Generate → Wait 20-40 seconds → Download!
+
+Result: HD quality, ~$0.08 cost
 ```
 
 ### Create a Video
@@ -161,9 +176,6 @@ Mode: Text-to-Video
 Model: Runway
 Prompt: "A butterfly flying through a magical forest"
 → Click Generate → Wait 30-120 seconds → Watch & Download!
-
-With Runway key: Premium quality
-Without key: Good quality, Bhindi fallback (automatic)
 ```
 
 ### Animate an Image
@@ -173,9 +185,6 @@ Upload: Your image
 Prompt: "Camera zooms in slowly"
 Model: Luma
 → Click Generate → Wait 60-120 seconds → Download!
-
-With Luma key: Premium quality
-Without key: Good quality, Bhindi fallback (automatic)
 ```
 
 ## 🛠️ Tech Stack
@@ -184,13 +193,13 @@ Without key: Good quality, Bhindi fallback (automatic)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
-- **API Integration**: Server-side routes with automatic fallback
+- **API Integration**: Server-side routes
 - **AI APIs**:
+  - **Gemini Nano Banana Pro** (FREE, via Bhindi)
   - OpenAI DALL-E 3 (optional)
   - Runway Gen-3 Turbo (optional)
   - Stability AI Image-to-Video (optional)
   - Luma AI Dream Machine (optional)
-  - Bhindi AI (automatic fallback)
 
 ## 📁 Project Structure
 
@@ -198,23 +207,19 @@ Without key: Good quality, Bhindi fallback (automatic)
 ai-media-generator-pro/
 ├── app/
 │   ├── api/                           # Server-side API routes
+│   │   ├── gemini-image/              # FREE Gemini image generation
 │   │   ├── generate-image/            # OpenAI image generation
-│   │   ├── generate-image-bhindi/     # Bhindi image fallback
 │   │   ├── generate-video/            # Video generation (all providers)
-│   │   ├── generate-video-bhindi/     # Bhindi video fallback
-│   │   ├── check-video-status/        # Status checking (all)
-│   │   └── check-video-status-bhindi/ # Bhindi status checking
+│   │   └── check-video-status/        # Status checking
 │   ├── layout.tsx                     # Root layout
 │   ├── page.tsx                       # Home page
 │   └── globals.css                    # Global styles
 ├── components/
-│   ├── AIMediaGenerator.tsx           # Client-side keys version
-│   └── AIMediaGeneratorServerless.tsx # Server-side version (active)
+│   └── AIMediaGenerator.tsx           # Main component
 ├── public/                            # Static assets
 ├── .env.local.example                 # Environment variables template
 ├── README.md                          # This file
-├── SETUP_FIX.md                       # Image generation fix guide
-├── VIDEO_SETUP_FIX.md                 # Video generation fix guide
+├── GEMINI_SETUP.md                    # Gemini setup guide
 ├── DEPLOYMENT.md                      # Deployment guide
 ├── API_DOCUMENTATION.md               # API details
 ├── QUICKSTART.md                      # Quick start guide
@@ -224,90 +229,99 @@ ai-media-generator-pro/
 
 ## 🎯 Features in Detail
 
-### Automatic Fallback System
-- **Smart Detection**: Checks for API keys automatically
-- **Seamless Switch**: Falls back to Bhindi when keys missing
-- **No User Impact**: Works transparently
-- **Cost Control**: Use premium when needed, free tier otherwise
+### FREE Gemini Image Generation
+- **Zero Cost**: Unlimited free images
+- **High Quality**: Professional-grade results
+- **Fast**: 10-30 second generation
+- **Flexible**: 5 aspect ratios (1:1, 16:9, 4:3, 3:4, 9:16)
+- **Advanced**: Text rendering, search grounding
+- **No Limits**: Generate as many as you want
 
-### Image Generation
-- **Premium (with OpenAI key)**: DALL-E 3 HD quality
-- **Free (automatic fallback)**: Bhindi Gemini, good quality
+### Premium DALL-E Option
+- **HD Quality**: Highest quality images
 - **Style Control**: Vivid or natural styles
-- **Flexible Sizing**: Square and landscape formats
+- **Flexible Sizing**: Multiple size options
+- **Image Editing**: Edit existing images
+- **Revised Prompts**: See how DALL-E interpreted your prompt
 
 ### Video Generation
-- **Premium (with provider keys)**: Runway/Stability/Luma
-- **Free (automatic fallback)**: Bhindi video generation
-- **Multiple Providers**: Choose best for your needs
+- **Multiple Providers**: Runway, Stability, Luma
+- **Text-to-Video**: Create from descriptions
+- **Image-to-Video**: Animate your images
 - **Polling System**: Automatic status checking
 
 ### User Experience
-- **Zero Configuration**: Works immediately
+- **Zero Configuration**: Works with just Bhindi key
 - **Responsive Design**: All devices supported
 - **Dark Theme**: Beautiful gradient background
 - **Gallery View**: Browse all creations
 - **One-Click Download**: Save instantly
+- **Loading States**: Visual feedback during generation
 
-## 💰 Cost Considerations
+## 💰 Cost Comparison
 
-### With API Keys (Premium Quality)
+### Gemini (FREE via Bhindi)
 
-**Images (OpenAI)**:
-- HD Quality: ~$0.08 per image
+**Images**:
+- Cost: **$0** (FREE!)
+- Quality: High
+- Speed: 10-30 seconds
+- Limits: Generous free tier
 
-**Videos**:
-- Runway: ~$0.05-0.10 per 5-second video
-- Stability: ~10 credits per video
-- Luma: Subscription-based
+**Example**: 1000 users generating 5000 images = **$0/month**
 
-**Example**: 1000 users generating 5000 images + 1000 videos = ~$450-500/month
+### DALL-E 3 (Optional)
 
-### Without API Keys (Free Tier)
+**Images**:
+- Cost: ~$0.08 per image
+- Quality: Very High (HD)
+- Speed: 20-40 seconds
 
-**Images & Videos (Bhindi)**:
-- Free tier with limits
-- Good quality
-- No costs!
+**Example**: 1000 users generating 5000 images = ~$400/month
 
-**Example**: Unlimited users within Bhindi's free tier limits = $0/month
+### Videos (All Providers)
 
-### Hybrid Approach (Recommended)
+**Runway**: ~$0.05-0.10 per 5-second video
+**Stability**: ~10 credits per video
+**Luma**: Subscription-based
 
-**Add only OpenAI key**:
-- Premium images: ~$0.08 each
-- Free videos: Bhindi fallback
-- **Best balance of quality and cost!**
+### Recommended Approach
+
+**Start with Gemini (FREE)**:
+- Zero costs
+- High quality
+- Perfect for most use cases
+
+**Add DALL-E for premium needs**:
+- Only when HD quality required
+- Pay per use
+- Best balance of quality and cost
 
 ## 🔒 Security Best Practices
 
 1. **Environment Variables**: Store API keys securely
 2. **Server-Side Only**: Keys never exposed to client
-3. **Automatic Fallback**: Graceful degradation
+3. **Bhindi Integration**: Secure FREE tier access
 4. **Rate Limiting**: Implement to prevent abuse
 5. **Monitoring**: Track usage and costs
 6. **Key Rotation**: Regularly update API keys
 
 ## 🐛 Troubleshooting
 
-### "OpenAI API key not configured on server"
-✅ **Solution**: App automatically uses Bhindi fallback!
-📚 **Details**: See [SETUP_FIX.md](SETUP_FIX.md)
+### "Failed to generate image"
+✅ **Check**: Bhindi API key is set correctly
+📚 **Guide**: See [GEMINI_SETUP.md](GEMINI_SETUP.md)
 
-### "Runway/Stability/Luma API key not configured"
-✅ **Solution**: App automatically uses Bhindi fallback!
-📚 **Details**: See [VIDEO_SETUP_FIX.md](VIDEO_SETUP_FIX.md)
+### Want to use DALL-E instead?
+✅ **Add**: OpenAI API key to environment
+📚 **Guide**: See [DEPLOYMENT.md](DEPLOYMENT.md)
 
-### Want Premium Quality?
-📚 **Add API Keys**: See [DEPLOYMENT.md](DEPLOYMENT.md)
-
-### Other Issues?
-📚 **Full Guide**: See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+### Video generation issues?
+📚 **Guide**: See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ## 📚 Documentation
 
-- **[SETUP_FIX.md](SETUP_FIX.md)** - Fix image generation errors
-- **[VIDEO_SETUP_FIX.md](VIDEO_SETUP_FIX.md)** - Fix video generation errors
+- **[GEMINI_SETUP.md](GEMINI_SETUP.md)** - Complete Gemini setup guide
 - **[QUICKSTART.md](QUICKSTART.md)** - Get started in 5 minutes
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Deploy your own instance
 - **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - API details
@@ -328,27 +342,36 @@ MIT License - feel free to use for personal or commercial projects.
 
 ## 🌟 Acknowledgments
 
+- Google for Gemini Nano Banana Pro
+- Bhindi for FREE API access
 - OpenAI for DALL-E 3
 - Runway for Gen-3 Turbo
 - Stability AI for image-to-video
 - Luma Labs for Dream Machine
-- Bhindi for free tier fallback
 - Vercel for hosting platform
 
 ## 📞 Support
 
 - **GitHub Issues**: Report bugs or request features
 - **Documentation**: Check comprehensive guides
+- **Bhindi Support**: support@bhindi.io
 - **API Providers**: Contact for API-specific issues
 
 ## 🎉 What's New
 
+### v3.0 - FREE Gemini Integration
+- ✨ **NEW**: Gemini Nano Banana Pro (FREE!)
+- ✨ Unlimited free image generation
+- ✨ 5 aspect ratios
+- ✨ Advanced text rendering
+- ✨ Search grounding support
+- ✨ Zero costs!
+
 ### v2.1 - Automatic Fallback System
-- ✅ Works without API keys!
+- ✅ Works without API keys
 - ✅ Automatic Bhindi fallback
 - ✅ Seamless quality degradation
 - ✅ Zero configuration needed
-- ✅ Free tier support
 
 ### v2.0 - Server-Side Integration
 - ✅ Server-side API routes
@@ -356,16 +379,11 @@ MIT License - feel free to use for personal or commercial projects.
 - ✅ Improved user experience
 - ✅ Better error handling
 
-### v1.0 - Initial Release
-- ✅ Client-side API integration
-- ✅ Multiple AI providers
-- ✅ Image and video generation
-- ✅ Responsive design
-
 ## 🚀 Roadmap
 
-- [x] Automatic fallback system
-- [x] Free tier support
+- [x] FREE Gemini image generation
+- [x] Multiple aspect ratios
+- [x] Advanced text rendering
 - [ ] User authentication
 - [ ] Generation history
 - [ ] Advanced settings
@@ -377,7 +395,8 @@ MIT License - feel free to use for personal or commercial projects.
 
 ## 🎯 Quick Links
 
-- 🔗 [Live Demo](https://ai-media-generator-bay.vercel.app/) (Deploy your own!)
+- 🔗 [Live Demo](https://ai-media-generator-bay.vercel.app/)
+- 📚 [Gemini Setup Guide](GEMINI_SETUP.md)
 - 📚 [Documentation](#documentation)
 - 🐛 [Report Bug](https://github.com/iakash07/ai-media-generator-pro/issues)
 - 💡 [Request Feature](https://github.com/iakash07/ai-media-generator-pro/issues)
@@ -386,4 +405,6 @@ MIT License - feel free to use for personal or commercial projects.
 
 **⭐ Star this repo if you find it useful!**
 
-**🚀 Deploy now and start creating - no API keys required!**
+**🚀 Deploy now and start creating FREE images with Gemini!**
+
+**✨ No costs, no limits, just creativity!**
