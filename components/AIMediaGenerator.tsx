@@ -3,22 +3,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Wand2, Loader2, Download, Sparkles, Upload, Video, Image as ImageIcon, Settings, Key, X, Play } from 'lucide-react';
 
+const IMAGE_PROVIDERS = ['gemini', 'dall-e'];
 const IMAGE_STYLES = ['vivid', 'natural'];
 const IMAGE_SIZES = ['1024x1024', '1792x1024', '1024x1792'];
+const GEMINI_ASPECT_RATIOS = ['1:1', '16:9', '4:3', '3:4', '9:16'];
 const VIDEO_MODELS = ['runway', 'stability', 'luma'];
 
 interface GeneratedMedia {
   type: 'image' | 'video';
   url: string;
   prompt: string;
+  provider?: string;
   style?: string;
   size?: string;
+  aspectRatio?: string;
   model?: string;
   timestamp: string;
   revisedPrompt?: string;
   isEdited?: boolean;
   fromImage?: boolean;
-  isGenerating?: boolean; // New field to track generation status
+  isGenerating?: boolean;
 }
 
 // Image component with loading state
@@ -59,8 +63,10 @@ function ImageWithLoader({ src, alt, className }: { src: string; alt: string; cl
 export default function AIMediaGenerator() {
   const [mode, setMode] = useState<'image' | 'text-to-video' | 'image-to-video'>('image');
   const [prompt, setPrompt] = useState('');
+  const [imageProvider, setImageProvider] = useState('gemini'); // Default to Gemini (free)
   const [imageStyle, setImageStyle] = useState('vivid');
   const [imageSize, setImageSize] = useState('1024x1024');
+  const [geminiAspectRatio, setGeminiAspectRatio] = useState('1:1');
   const [videoModel, setVideoModel] = useState('runway');
   const [loading, setLoading] = useState(false);
   const [generatedMedia, setGeneratedMedia] = useState<GeneratedMedia[]>([]);
@@ -97,7 +103,76 @@ export default function AIMediaGenerator() {
     setShowSettings(false);
   };
 
+  const generateGeminiImage = async () => {
+    if (!prompt.trim()) {
+      setError('Please enter a prompt');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    // Add placeholder to gallery immediately
+    const placeholderMedia: GeneratedMedia = {
+      type: 'image',
+      url: '',
+      prompt: prompt,
+      provider: 'gemini',
+      aspectRatio: geminiAspectRatio,
+      timestamp: new Date().toLocaleString(),
+      isGenerating: true
+    };
+    
+    setGeneratedMedia([placeholderMedia, ...generatedMedia]);
+    const currentPrompt = prompt;
+    setPrompt('');
+
+    try {
+      const response = await fetch('/api/gemini-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: currentPrompt,
+          aspectRatio: geminiAspectRatio
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate image');
+      }
+
+      const data = await response.json();
+      
+      // Update the placeholder with actual image
+      const newMedia: GeneratedMedia = {
+        type: 'image',
+        url: data.imageUrl,
+        prompt: currentPrompt,
+        provider: 'gemini',
+        aspectRatio: geminiAspectRatio,
+        timestamp: new Date().toLocaleString(),
+        isGenerating: false
+      };
+      
+      setGeneratedMedia(prev => [newMedia, ...prev.slice(1)]);
+      
+    } catch (err: any) {
+      setError(`Gemini Error: ${err.message}`);
+      // Remove placeholder on error
+      setGeneratedMedia(prev => prev.slice(1));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const generateImage = async () => {
+    if (imageProvider === 'gemini') {
+      return generateGeminiImage();
+    }
+
     if (!prompt.trim()) {
       setError('Please enter a prompt');
       return;
@@ -117,6 +192,7 @@ export default function AIMediaGenerator() {
       type: 'image',
       url: '',
       prompt: prompt,
+      provider: 'dall-e',
       style: imageStyle,
       size: imageSize,
       timestamp: new Date().toLocaleString(),
@@ -156,6 +232,7 @@ export default function AIMediaGenerator() {
         type: 'image',
         url: data.data[0].url,
         prompt: currentPrompt,
+        provider: 'dall-e',
         style: imageStyle,
         size: imageSize,
         timestamp: new Date().toLocaleString(),
@@ -194,6 +271,7 @@ export default function AIMediaGenerator() {
       type: 'image',
       url: '',
       prompt: prompt,
+      provider: 'dall-e',
       size: imageSize,
       timestamp: new Date().toLocaleString(),
       isEdited: true,
@@ -236,6 +314,7 @@ export default function AIMediaGenerator() {
         type: 'image',
         url: data.data[0].url,
         prompt: currentPrompt,
+        provider: 'dall-e',
         size: imageSize,
         timestamp: new Date().toLocaleString(),
         isEdited: true,
@@ -653,7 +732,7 @@ export default function AIMediaGenerator() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      OpenAI API Key (for images)
+                      OpenAI API Key (for DALL-E images)
                     </label>
                     <input
                       type="password"
@@ -711,11 +790,11 @@ export default function AIMediaGenerator() {
                 <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h3 className="font-semibold text-blue-900 mb-2">💡 Getting Started:</h3>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• For images: You only need an OpenAI API key</li>
+                    <li>• <strong>Gemini is FREE!</strong> No API key needed for image generation</li>
+                    <li>• For DALL-E images: You need an OpenAI API key</li>
                     <li>• For videos: Choose one video provider (Runway, Stability, or Luma)</li>
                     <li>• API keys are stored locally in your browser</li>
                     <li>• Never share your API keys with anyone</li>
-                    <li>• Stability AI only supports image-to-video (not text-to-video)</li>
                   </ul>
                 </div>
 
@@ -840,7 +919,7 @@ export default function AIMediaGenerator() {
                 className="text-white/80 hover:text-white text-sm flex items-center gap-2"
               >
                 <Upload className="w-4 h-4" />
-                Or upload an image to edit
+                Or upload an image to edit (DALL-E only)
               </button>
               <input
                 ref={fileInputRef}
@@ -872,36 +951,93 @@ export default function AIMediaGenerator() {
           </div>
 
           {/* Image Settings */}
-          {mode === 'image' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {mode === 'image' && !uploadedImage && (
+            <div className="space-y-4 mb-6">
+              {/* Provider Selection */}
               <div>
-                <label className="block text-white font-medium mb-2 text-sm">Style</label>
+                <label className="block text-white font-medium mb-2 text-sm">
+                  Image Provider {imageProvider === 'gemini' && <span className="text-green-300">✨ FREE</span>}
+                </label>
                 <div className="flex gap-2">
-                  {IMAGE_STYLES.map((style) => (
+                  {IMAGE_PROVIDERS.map((provider) => (
                     <button
-                      key={style}
-                      onClick={() => setImageStyle(style)}
+                      key={provider}
+                      onClick={() => setImageProvider(provider)}
                       className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all capitalize ${
-                        imageStyle === style ? 'bg-purple-600 text-white' : 'bg-white/20 text-white hover:bg-white/30'
+                        imageProvider === provider ? 'bg-purple-600 text-white' : 'bg-white/20 text-white hover:bg-white/30'
                       }`}
                     >
-                      {style}
+                      {provider === 'gemini' ? '✨ Gemini (Free)' : 'DALL-E'}
                     </button>
                   ))}
                 </div>
               </div>
-              <div>
-                <label className="block text-white font-medium mb-2 text-sm">Size</label>
-                <select
-                  value={imageSize}
-                  onChange={(e) => setImageSize(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/90 border border-indigo-300 rounded-lg focus:outline-none"
-                >
-                  {IMAGE_SIZES.map((size) => (
-                    <option key={size} value={size}>{size}</option>
-                  ))}
-                </select>
-              </div>
+
+              {/* Gemini Settings */}
+              {imageProvider === 'gemini' && (
+                <div>
+                  <label className="block text-white font-medium mb-2 text-sm">Aspect Ratio</label>
+                  <select
+                    value={geminiAspectRatio}
+                    onChange={(e) => setGeminiAspectRatio(e.target.value)}
+                    className="w-full px-4 py-2 bg-white/90 border border-indigo-300 rounded-lg focus:outline-none"
+                  >
+                    {GEMINI_ASPECT_RATIOS.map((ratio) => (
+                      <option key={ratio} value={ratio}>{ratio}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* DALL-E Settings */}
+              {imageProvider === 'dall-e' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-white font-medium mb-2 text-sm">Style</label>
+                    <div className="flex gap-2">
+                      {IMAGE_STYLES.map((style) => (
+                        <button
+                          key={style}
+                          onClick={() => setImageStyle(style)}
+                          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all capitalize ${
+                            imageStyle === style ? 'bg-purple-600 text-white' : 'bg-white/20 text-white hover:bg-white/30'
+                          }`}
+                        >
+                          {style}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-white font-medium mb-2 text-sm">Size</label>
+                    <select
+                      value={imageSize}
+                      onChange={(e) => setImageSize(e.target.value)}
+                      className="w-full px-4 py-2 bg-white/90 border border-indigo-300 rounded-lg focus:outline-none"
+                    >
+                      {IMAGE_SIZES.map((size) => (
+                        <option key={size} value={size}>{size}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* DALL-E Settings for Image Editing */}
+          {mode === 'image' && uploadedImage && (
+            <div className="mb-6">
+              <label className="block text-white font-medium mb-2 text-sm">Size</label>
+              <select
+                value={imageSize}
+                onChange={(e) => setImageSize(e.target.value)}
+                className="w-full px-4 py-2 bg-white/90 border border-indigo-300 rounded-lg focus:outline-none"
+              >
+                {IMAGE_SIZES.map((size) => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -988,7 +1124,7 @@ export default function AIMediaGenerator() {
                     )}
                     <div className="flex items-center justify-between text-xs text-gray-600 mb-3">
                       <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">
-                        {media.type === 'video' ? media.model : media.style}
+                        {media.type === 'video' ? media.model : media.provider || media.style}
                       </span>
                       <span>{media.timestamp}</span>
                     </div>
