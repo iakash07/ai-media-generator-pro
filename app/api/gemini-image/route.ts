@@ -11,28 +11,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const bhindiApiKey = process.env.BHINDI_API_KEY;
+    
+    if (!bhindiApiKey) {
+      return NextResponse.json(
+        { error: 'Bhindi API key is not configured. Please add BHINDI_API_KEY to your environment variables.' },
+        { status: 500 }
+      );
+    }
+
     // Call Bhindi's Gemini Nano Banana Pro API
-    const response = await fetch('https://api.bhindi.io/v1/gemini-nano-banana-pro/generate-image', {
+    const response = await fetch('https://api.bhindi.io/v1/agents/gemini-nano-banana-pro/generateImage', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.BHINDI_API_KEY}`,
+        'Authorization': `Bearer ${bhindiApiKey}`,
       },
       body: JSON.stringify({
         prompt,
         aspectRatio,
+        useSearchGrounding: false,
       }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to generate image');
+      const errorText = await response.text();
+      console.error('Bhindi API error:', errorText);
+      throw new Error(`Bhindi API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
 
+    // Extract the image URL from the response
+    const imageUrl = data.urls?.[0] || data.imageUrl || data.url;
+
+    if (!imageUrl) {
+      console.error('No image URL in response:', data);
+      throw new Error('No image URL returned from API');
+    }
+
     return NextResponse.json({
-      imageUrl: data.imageUrl || data.url,
+      imageUrl,
       success: true,
     });
   } catch (error: any) {
