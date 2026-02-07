@@ -1,50 +1,36 @@
 # 🎨 AI Media Generator Pro
 
-A professional-grade AI media generation platform with **Google Gemini Pro & Veo** integration! Create stunning images and videos with **Gemini Bhindi** (FREE), **Gemini Pro**, **Google Veo**, **DALL-E 3**, **Runway Gen-3**, **Stability AI**, and **Luma AI**.
+A professional-grade AI media generation platform with **FREE Gemini image generation** and optional premium providers! Create stunning images and videos with **Gemini Nano Banana Pro** (FREE), **DALL-E 3**, **Runway Gen-3**, **Stability AI**, and **Luma AI**.
 
 ![AI Media Generator](https://img.shields.io/badge/AI-Media%20Generator-purple?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)
-![Google Gemini](https://img.shields.io/badge/Google-Gemini%20Pro-blue?style=for-the-badge&logo=google)
-![Google Veo](https://img.shields.io/badge/Google-Veo-red?style=for-the-badge&logo=google)
 
 ## ✨ Key Features
 
-### 🎯 **Three Image Generation Options!**
-- **✨ Gemini Bhindi** (FREE, default) - 100% FREE, unlimited images!
-- **🚀 Gemini Pro** (NEW!) - Google's state-of-the-art Imagen 3 model
-- **🎨 DALL-E 3** - OpenAI's premium image generation
+### 🎯 **FREE Image Generation with Gemini!**
+- ✨ **Gemini Nano Banana Pro** - 100% FREE, unlimited images!
+- 🎨 **High Quality** - Professional-grade results
+- ⚡ **Fast** - 10-30 second generation
 - 🎭 **5 Aspect Ratios** - Perfect for any use case
-- ⚡ **Fast** - 10-40 second generation
-- 💰 **Flexible Pricing** - FREE to premium options
+- 💰 **No Costs** - Zero API fees
 
-### 🎬 **Four Video Generation Options!**
-- **🎬 Google Veo** (NEW!) - Professional video generation from Google
-- **🎥 Runway Gen-3 Turbo** - Fast, high-quality videos
-- **🎞️ Stability AI** - Image-to-video animations
-- **🌟 Luma Dream Machine** - Advanced video effects
-- 📹 **Text-to-Video** & **Image-to-Video** modes
-- 🎯 **5-second duration**, 16:9 aspect ratio
-
-### 🖼️ Image Generation Features
-- **Gemini Bhindi (FREE)**: High quality, 5 aspect ratios, unlimited
-- **Gemini Pro (Imagen 3)**: Very high quality, advanced features, Google Cloud pricing
-- **DALL-E 3**: HD quality, vivid/natural styles, ~$0.08/image
+### 🖼️ Image Generation Options
+- **✨ Gemini Nano Banana Pro** (FREE, default) - High quality, 5 aspect ratios
+- **DALL-E 3** (optional, with OpenAI key) - HD quality, vivid/natural styles
 - Multiple sizes and aspect ratios
 - Advanced text rendering
 - Search grounding for factual accuracy
 
-### 🎬 Video Generation Features
-- **Google Veo**: Professional-grade, text-to-video & image-to-video
-- **Runway Gen-3**: Fast generation, high quality
-- **Stability AI**: Image animation, smooth transitions
-- **Luma Dream Machine**: Advanced effects, cinematic quality
-- Automatic status polling
-- Download in MP4 format
+### 🎬 Video Generation
+- **Runway Gen-3 Turbo** - Text-to-video & Image-to-video
+- **Stability AI** - Image-to-video animations
+- **Luma AI Dream Machine** - Advanced video generation
+- 5-second video duration, 16:9 aspect ratio
 
 ### 🎯 Generation Modes
-1. **Image Generation** - Create stunning images from text
+1. **Image Generation** - Create stunning images from text (FREE with Gemini!)
 2. **Text-to-Video** - Generate videos from descriptions
 3. **Image-to-Video** - Animate your images
 
@@ -54,14 +40,11 @@ A professional-grade AI media generation platform with **Google Gemini Pro & Veo
 
 Just visit the deployed site and start creating:
 1. Enter your prompt
-2. Choose your provider:
-   - **✨ Gemini (Free)** - No API key needed!
-   - **🚀 Gemini Pro** - Add Google API key
-   - **🎬 Google Veo** - Add Google API key
+2. Choose "Gemini (Free)" as provider (default)
 3. Click Generate
 4. Download your creation!
 
-**✨ Start FREE with Gemini Bhindi - No API keys needed!**
+**✨ Gemini is FREE - No API keys needed for images!**
 
 ### For Developers (Deploy Your Own)
 
@@ -76,29 +59,20 @@ cd ai-media-generator-pro
 npm install
 ```
 
-#### 3. Set up API keys
+#### 3. Set up Bhindi API key (for FREE Gemini)
 Create `.env.local` file:
 ```bash
-# Required for FREE Gemini Bhindi image generation
+# Required for FREE Gemini image generation
 BHINDI_API_KEY=your-bhindi-api-key-here
 
-# Optional - for Google Gemini Pro & Veo
-GOOGLE_API_KEY=your-google-api-key-here
-
-# Optional - for other premium providers
+# Optional - for premium quality alternatives
 NEXT_PUBLIC_OPENAI_API_KEY=sk-your-openai-key
 NEXT_PUBLIC_RUNWAY_API_KEY=your-runway-key
 NEXT_PUBLIC_STABILITY_API_KEY=sk-your-stability-key
 NEXT_PUBLIC_LUMA_API_KEY=your-luma-key
 ```
 
-**Get your API keys:**
-- **Bhindi** (FREE): https://bhindi.io
-- **Google**: https://makersuite.google.com/app/apikey
-- **OpenAI**: https://platform.openai.com
-- **Runway**: https://runwayml.com
-- **Stability**: https://stability.ai
-- **Luma**: https://lumalabs.ai
+Get your FREE Bhindi API key at: https://bhindi.io
 
 #### 4. Run development server
 ```bash
@@ -108,29 +82,20 @@ npm run dev
 #### 5. Open browser
 Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 🔑 API Keys Guide
+## 🔑 API Keys
 
-### 🆓 FREE Option (No API Key Needed!)
-- **Gemini Bhindi**: https://bhindi.io
-  - ✨ Unlimited image generation
+### For FREE Image Generation (Recommended!)
+- **Bhindi**: https://bhindi.io - Get your FREE API key
+  - ✨ Unlimited Gemini image generation
   - 🎨 Professional quality
-  - ⚡ Fast (10-30 seconds)
+  - ⚡ Fast generation
   - 💰 Zero costs
-  - 🚀 No credit card required
 
-### 🚀 Google AI (Recommended for Pro Features)
-- **Google API Key**: https://makersuite.google.com/app/apikey
-  - 🎨 Gemini Pro (Imagen 3) - State-of-the-art images
-  - 🎬 Google Veo - Professional videos
-  - 💰 Pay-per-use pricing
-  - 🔧 Advanced features
-  - 📊 Usage tracking in Google Cloud
-
-### 🎨 Alternative Premium Providers
-- **OpenAI**: https://platform.openai.com (DALL-E 3)
-- **Runway**: https://runwayml.com (Gen-3 videos)
-- **Stability AI**: https://stability.ai (Image-to-video)
-- **Luma AI**: https://lumalabs.ai (Dream Machine)
+### For Premium Alternatives (Optional)
+- **OpenAI**: https://platform.openai.com (for DALL-E 3 images)
+- **Runway**: https://runwayml.com (for premium videos)
+- **Stability AI**: https://stability.ai (for image-to-video)
+- **Luma AI**: https://lumalabs.ai (for advanced videos)
 
 ## 🌐 Deploy to Vercel
 
@@ -138,13 +103,11 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 
 1. Click the button above
 2. Add your `BHINDI_API_KEY` for FREE images
-3. **(Optional)** Add `GOOGLE_API_KEY` for Gemini Pro & Veo
-4. **(Optional)** Add other API keys for more providers
-5. Deploy!
+3. **(Optional)** Add other API keys for more providers
+4. Deploy!
 
-**Start with FREE Gemini, upgrade to Pro when you need it!**
+**Start with FREE Gemini, upgrade to premium when you need it!**
 
-See [GOOGLE_GEMINI_VEO_SETUP.md](GOOGLE_GEMINI_VEO_SETUP.md) for detailed Google setup.
 See [GEMINI_SETUP.md](GEMINI_SETUP.md) for Bhindi Gemini setup.
 See [DEPLOYMENT.md](DEPLOYMENT.md) for general deployment guide.
 
@@ -157,15 +120,15 @@ User Request
     ↓
 Choose Provider
     ↓
-┌──────────────┬──────────────┬──────────────┐
-│ Gemini Free  │ Gemini Pro   │  DALL-E 3    │
-│ (Default)    │ (Google)     │  (OpenAI)    │
-├──────────────┼──────────────┼──────────────┤
-│ Bhindi API   │ Google API   │ OpenAI API   │
-│ FREE!        │ ~$0.02-0.05  │ ~$0.08       │
-└──────────────┴──────────────┴──────────────┘
-    ↓              ↓              ↓
-  Result         Result         Result
+┌──────────────┬──────────────┐
+│ Gemini Free  │  DALL-E 3    │
+│ (Default)    │  (OpenAI)    │
+├──────────────┼──────────────┤
+│ Bhindi API   │ OpenAI API   │
+│ FREE!        │ ~$0.08       │
+└──────────────┴──────────────┘
+    ↓              ↓
+  Result         Result
 ```
 
 ### Video Generation Flow
@@ -175,28 +138,26 @@ User Request
     ↓
 Choose Model
     ↓
-┌──────────────┬──────────────┬──────────────┬──────────────┐
-│ Google Veo   │  Runway      │  Stability   │    Luma      │
-│ (NEW!)       │  Gen-3       │  AI          │  Dream       │
-├──────────────┼──────────────┼──────────────┼──────────────┤
-│ Google API   │ Runway API   │ Stability    │ Luma API     │
-│ ~$0.10-0.20  │ ~$0.05-0.10  │ ~10 credits  │ Subscription │
-└──────────────┴──────────────┴──────────────┴──────────────┘
-    ↓              ↓              ↓              ↓
-  Result         Result         Result         Result
+┌──────────────┬──────────────┬──────────────┐
+│  Runway      │  Stability   │    Luma      │
+│  Gen-3       │  AI          │  Dream       │
+├──────────────┼──────────────┼──────────────┤
+│ Runway API   │ Stability    │ Luma API     │
+│ ~$0.05-0.10  │ ~10 credits  │ Subscription │
+└──────────────┴──────────────┴──────────────┘
+    ↓              ↓              ↓
+  Result         Result         Result
 ```
 
 ### API Routes
 
 **Image Generation**:
 1. `/api/gemini-image` - FREE Gemini Bhindi (default)
-2. `/api/google-gemini-image` - Gemini Pro (Imagen 3)
-3. `/api/generate-image` - DALL-E 3
+2. `/api/generate-image` - DALL-E 3
 
 **Video Generation**:
-1. `/api/google-veo-video` - Google Veo (NEW!)
-2. `/api/generate-video` - Runway/Stability/Luma
-3. `/api/google-veo-status` - Veo status polling
+1. `/api/generate-video` - Runway/Stability/Luma
+2. `/api/check-video-status` - Status checking
 
 ### Security
 
@@ -218,35 +179,36 @@ Aspect Ratio: 16:9
 Result: High-quality image, 100% FREE!
 ```
 
-### Generate Premium Image with Gemini Pro
+### Generate Premium Image with DALL-E 3
 ```
-Provider: 🚀 Gemini Pro
+Provider: DALL-E 3
 Prompt: "Professional product photo of luxury smartwatch, studio lighting"
-Aspect Ratio: 1:1
-→ Click Generate → Wait 15-40 seconds → Download!
+Style: Vivid
+Size: 1024x1024
+→ Click Generate → Wait 20-40 seconds → Download!
 
-Result: State-of-the-art quality, ~$0.02-0.05 cost
+Result: HD quality, ~$0.08 cost
 ```
 
-### Generate Video with Google Veo
+### Generate Video with Runway
 ```
 Mode: Text-to-Video
-Model: 🎬 Google Veo
+Model: Runway Gen-3
 Prompt: "A butterfly flying through a magical forest, cinematic"
-→ Click Generate → Wait 30-120 seconds → Watch & Download!
+→ Click Generate → Wait 30-90 seconds → Watch & Download!
 
-Result: Professional-grade video, ~$0.10-0.20 cost
+Result: High-quality video, ~$0.05-0.10 cost
 ```
 
-### Animate Image with Veo
+### Animate Image with Stability AI
 ```
 Mode: Image-to-Video
-Model: 🎬 Google Veo
+Model: Stability AI
 Upload: [Your image]
-Prompt: "Slow 360-degree rotation with dramatic lighting"
+Prompt: "Slow zoom in with dramatic lighting"
 → Click Generate → Wait 60-120 seconds → Download!
 
-Result: Smooth animation, professional quality
+Result: Smooth animation
 ```
 
 ## 🛠️ Tech Stack
@@ -258,8 +220,6 @@ Result: Smooth animation, professional quality
 - **API Integration**: Direct client-side calls
 - **AI APIs**:
   - **Gemini Bhindi** (FREE, via Bhindi)
-  - **Google Gemini Pro** (Imagen 3)
-  - **Google Veo** (Video generation)
   - OpenAI DALL-E 3 (optional)
   - Runway Gen-3 Turbo (optional)
   - Stability AI (optional)
@@ -272,11 +232,8 @@ ai-media-generator-pro/
 ├── app/
 │   ├── api/                              # Server-side API routes
 │   │   ├── gemini-image/                 # FREE Gemini Bhindi
-│   │   ├── google-gemini-image/          # Gemini Pro (Imagen 3)
-│   │   ├── google-veo-video/             # Google Veo video
-│   │   ├── google-veo-status/            # Veo status polling
 │   │   ├── generate-image/               # DALL-E 3
-│   │   ├── generate-video/               # Other video providers
+│   │   ├── generate-video/               # Video providers
 │   │   └── check-video-status/           # Status checking
 │   ├── layout.tsx                        # Root layout
 │   ├── page.tsx                          # Home page
@@ -286,7 +243,6 @@ ai-media-generator-pro/
 ├── public/                               # Static assets
 ├── .env.local.example                    # Environment variables
 ├── README.md                             # This file
-├── GOOGLE_GEMINI_VEO_SETUP.md           # Google setup guide
 ├── GEMINI_SETUP.md                       # Bhindi Gemini guide
 ├── DEPLOYMENT.md                         # Deployment guide
 └── package.json                          # Dependencies
@@ -299,14 +255,12 @@ ai-media-generator-pro/
 | Provider | Cost per Image | Quality | Speed | API Key |
 |----------|---------------|---------|-------|---------|
 | **Gemini Bhindi** | **FREE** ✅ | High | 10-30s | Bhindi (free) |
-| **Gemini Pro** | ~$0.02-0.05 | Very High | 15-40s | Google |
 | **DALL-E 3** | ~$0.08 | Very High | 20-40s | OpenAI |
 
 ### Video Generation
 
 | Provider | Cost per Video | Quality | Speed | API Key |
 |----------|---------------|---------|-------|---------|
-| **Google Veo** | ~$0.10-0.20 | Professional | 30-120s | Google |
 | **Runway** | ~$0.05-0.10 | High | 30-90s | Runway |
 | **Stability** | ~10 credits | Good | 60-120s | Stability |
 | **Luma** | Subscription | High | 60-120s | Luma |
@@ -318,16 +272,14 @@ ai-media-generator-pro/
 - Zero costs, high quality
 - Perfect for testing and most use cases
 
-**Upgrade to Pro**:
-- Add Google API key for Gemini Pro & Veo
-- State-of-the-art quality
-- Professional video generation
+**Upgrade to Premium**:
+- Use DALL-E 3 for critical projects
+- Use Runway/Stability/Luma for videos
 - Pay only for what you use
 
 **Mix & Match**:
 - Use FREE Gemini for most images
-- Use Gemini Pro for critical projects
-- Use Veo for professional videos
+- Use DALL-E 3 for highest quality needs
 - Best balance of quality and cost!
 
 ## 🔒 Security Best Practices
@@ -340,28 +292,28 @@ ai-media-generator-pro/
 
 ## 🐛 Troubleshooting
 
-### "Google API key is required"
+### "Failed to generate image"
 ✅ **Solution**: 
+- Gemini Bhindi is FREE and should work without any API key
+- Make sure your Bhindi API key is set in `.env.local`
+- Check the console for detailed error messages
+
+### Want to use DALL-E 3?
+✅ **Setup**:
 1. Click "API Settings"
-2. Add your Google API key
-3. Get key from: https://makersuite.google.com/app/apikey
+2. Add your OpenAI API key
+3. Select "DALL-E 3" as provider
+4. Generate!
 
-### "Failed to generate image/video"
+### Video generation issues?
 ✅ **Check**:
-1. API key is correct
-2. Required APIs enabled in Google Cloud
-3. Quota not exceeded
-4. Prompt is appropriate
-
-📚 **Guide**: See [GOOGLE_GEMINI_VEO_SETUP.md](GOOGLE_GEMINI_VEO_SETUP.md)
-
-### Want to use FREE option?
-✅ **Use**: Gemini Bhindi (no API key needed!)
-📚 **Guide**: See [GEMINI_SETUP.md](GEMINI_SETUP.md)
+1. API key is correct for selected model
+2. Image is uploaded (for image-to-video)
+3. Prompt is appropriate
+4. Wait for status polling to complete
 
 ## 📚 Documentation
 
-- **[GOOGLE_GEMINI_VEO_SETUP.md](GOOGLE_GEMINI_VEO_SETUP.md)** - Complete Google setup guide
 - **[GEMINI_SETUP.md](GEMINI_SETUP.md)** - Bhindi Gemini setup
 - **[QUICKSTART.md](QUICKSTART.md)** - Get started in 5 minutes
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Deploy your own instance
@@ -383,7 +335,6 @@ MIT License - feel free to use for personal or commercial projects.
 
 ## 🌟 Acknowledgments
 
-- **Google** for Gemini Pro (Imagen 3) and Veo
 - **Bhindi** for FREE Gemini API access
 - **OpenAI** for DALL-E 3
 - **Runway** for Gen-3 Turbo
@@ -395,18 +346,9 @@ MIT License - feel free to use for personal or commercial projects.
 
 - **GitHub Issues**: Report bugs or request features
 - **Documentation**: Check comprehensive guides
-- **Google Cloud Support**: https://cloud.google.com/support
 - **Bhindi Support**: support@bhindi.io
 
 ## 🎉 What's New
-
-### v4.0 - Google Gemini Pro & Veo Integration
-- 🚀 **NEW**: Google Gemini Pro (Imagen 3)
-- 🎬 **NEW**: Google Veo video generation
-- ✨ Three image generation options
-- 🎥 Four video generation options
-- 🔧 Direct Google API integration
-- 📊 Advanced features & controls
 
 ### v3.0 - FREE Gemini Integration
 - ✨ Gemini Bhindi (FREE!)
@@ -422,10 +364,7 @@ MIT License - feel free to use for personal or commercial projects.
 ## 🚀 Roadmap
 
 - [x] FREE Gemini image generation
-- [x] Google Gemini Pro integration
-- [x] Google Veo video generation
 - [ ] Batch generation
-- [ ] Custom video durations
 - [ ] More aspect ratios
 - [ ] Advanced editing features
 - [ ] Generation history
@@ -435,7 +374,6 @@ MIT License - feel free to use for personal or commercial projects.
 ## 🎯 Quick Links
 
 - 🔗 [Live Demo](https://ai-media-generator-bay.vercel.app/)
-- 📚 [Google Setup Guide](GOOGLE_GEMINI_VEO_SETUP.md)
 - 📚 [Gemini Bhindi Guide](GEMINI_SETUP.md)
 - 📚 [Documentation](#documentation)
 - 🐛 [Report Bug](https://github.com/iakash07/ai-media-generator-pro/issues)
@@ -445,10 +383,10 @@ MIT License - feel free to use for personal or commercial projects.
 
 **⭐ Star this repo if you find it useful!**
 
-**🚀 Deploy now and start creating with Google Gemini Pro & Veo!**
+**🚀 Deploy now and start creating with FREE Gemini!**
 
-**✨ Start FREE, upgrade to Pro when you need it!**
+**✨ Start FREE, upgrade to premium when you need it!**
 
-**🎨 Three image options: FREE → Pro → Premium**
+**🎨 Two image options: FREE Gemini → Premium DALL-E 3**
 
-**🎬 Four video options: Veo → Runway → Stability → Luma**
+**🎬 Three video options: Runway → Stability → Luma**
