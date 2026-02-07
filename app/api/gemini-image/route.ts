@@ -20,8 +20,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call Bhindi's Gemini Nano Banana Pro API
-    const response = await fetch('https://api.bhindi.io/v1/agents/gemini-nano-banana-pro/generateImage', {
+    // Call Bhindi's Gemini Nano Banana Pro API (original working endpoint)
+    const response = await fetch('https://api.bhindi.io/v1/gemini-nano-banana-pro/generate-image', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         prompt,
         aspectRatio,
-        useSearchGrounding: false,
       }),
     });
 
@@ -43,7 +42,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
 
     // Extract the image URL from the response
-    const imageUrl = data.urls?.[0] || data.imageUrl || data.url;
+    const imageUrl = data.imageUrl || data.url;
 
     if (!imageUrl) {
       console.error('No image URL in response:', data);
